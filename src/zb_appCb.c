@@ -306,6 +306,8 @@ void app_otaProcessMsgHandler(u8 evt, u8 status)
             if (g_appCtx.timerSetPollRateEvt) {
                 TL_ZB_TIMER_CANCEL(&g_appCtx.timerSetPollRateEvt);
             }
+            light_blink_stop();
+            light_blink_start(5, 100, 500);
         } else {
 
         }

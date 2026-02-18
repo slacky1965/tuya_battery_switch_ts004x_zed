@@ -45,7 +45,7 @@ int32_t delayedFullResetCb(void *arg) {
 
 static int32_t set_pollRateCb(void *args) {
 
-//    printf("set_pollRateCb\r\n");
+    DEBUG(DEBUG_PM_EN, "set_pollRateCb\r\n");
 
     g_appCtx.not_sleep = false;
 
@@ -69,6 +69,7 @@ void app_setPollRate(uint32_t sec) {
     }
 
     zb_setPollRate(POLL_RATE * 3);
+
     if (g_appCtx.timerSetPollRateEvt) {
         TL_ZB_TIMER_CANCEL(&g_appCtx.timerSetPollRateEvt);
     }

@@ -43,3 +43,32 @@ void forceReportBattery(void *args) {
         zcl_sendReportAttrsCmd(APP_ENDPOINT1, &dstEpInfo, TRUE, ZCL_FRAME_SERVER_CLIENT_DIR, ZCL_CLUSTER_GEN_POWER_CFG, (zclReportCmd_t* )&report);
     }
 }
+
+void app_forcedReport(uint8_t endpoint, uint16_t claster_id, uint16_t attr_id) {
+
+    if (zb_isDeviceJoinedNwk()) {
+
+        epInfo_t dstEpInfo;
+        TL_SETSTRUCTCONTENT(dstEpInfo, 0);
+
+        status_t ret = 0;
+        dstEpInfo.profileId = HA_PROFILE_ID;
+        dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+
+        zclAttrInfo_t *pAttrEntry = zcl_findAttribute(endpoint, claster_id, attr_id);
+
+        if (!pAttrEntry) {
+            //should not happen.
+            ZB_EXCEPTION_POST(SYS_EXCEPTTION_ZB_ZCL_ENTRY);
+            return;
+        }
+
+        ret = zcl_sendReportCmd(endpoint, &dstEpInfo,  TRUE, ZCL_FRAME_SERVER_CLIENT_DIR,
+                    claster_id, pAttrEntry->id, pAttrEntry->type, pAttrEntry->data);
+
+        DEBUG(DEBUG_REPORTING_EN, "ret: %d, forceReportCb. endpoint: 0x%x, claster_id: 0x%x, attr_id: 0x%x, data: 0x%08x\r\n", ret, endpoint, claster_id, attr_id, *pAttrEntry->data);
+    }
+
+
+}
+

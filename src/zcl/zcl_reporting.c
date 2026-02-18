@@ -28,7 +28,7 @@
  */
 #include "zcl_include.h"
 
-//#define DEBUG_REPORTING_EN     0
+#define REPORT_DEBUG_ENABLE     0
 
 /**********************************************************************
  * TYPEDEFS
@@ -445,7 +445,7 @@ _CODE_ZCL_ static void reportAttrs(void)
                     u8 dataLen = zcl_getAttrSize(pAttrEntry->type, pAttrEntry->data);
                     dataLen = (dataLen > REPORTABLE_CHANGE_MAX_ANALOG_SIZE) ? (REPORTABLE_CHANGE_MAX_ANALOG_SIZE) : (dataLen);
 
-                    DEBUG(DEBUG_REPORTING_EN, "RP: cID = %x, aID = %x, min = %d, max = %d\r\n",
+                    DEBUG(REPORT_DEBUG_ENABLE, "RP: cID = %x, aID = %x, min = %d, max = %d\r\n",
                           pEntry->clusterID, pEntry->attrID, pEntry->minIntCnt, pEntry->maxIntCnt);
 
                     if (!pEntry->maxIntCnt && pEntry->maxInterval) {
@@ -526,7 +526,7 @@ _CODE_ZCL_ static s32 reportAttrTimerCb(void *arg)
 {
     zcl_reportTimerEvt_t *pReportTimer = (zcl_reportTimerEvt_t *)arg;
 
-    DEBUG(DEBUG_REPORTING_EN, "reportAttrTimerCb: %x\r\n", (u32)pReportTimer);
+    DEBUG(REPORT_DEBUG_ENABLE, "reportAttrTimerCb: %x\r\n", (u32)pReportTimer);
 
     if (pReportTimer->pEntry) {
         reportCfgInfo_t *pEntry = pReportTimer->pEntry;
@@ -549,7 +549,7 @@ _CODE_ZCL_ static s32 reportAttrTimerCb(void *arg)
             }
         }
 
-        DEBUG(DEBUG_REPORTING_EN, "cID = %x, attrID = %x, min = %d, max = %d, sec = %d\r\n",
+        DEBUG(REPORT_DEBUG_ENABLE, "cID = %x, attrID = %x, min = %d, max = %d, sec = %d\r\n",
               pEntry->clusterID, pEntry->attrID, pEntry->minIntCnt, pEntry->maxIntCnt, pReportTimer->seconds);
 
         reportingTimerStart();
@@ -655,7 +655,7 @@ _CODE_ZCL_ static void reportAttrTimerStart(void)
             }
 
             if (!pTimerEvt->pEntry) {
-                DEBUG(DEBUG_REPORTING_EN, "SET_Timer: cID = %x, attrID = %x, sec = %d\r\n",
+                DEBUG(REPORT_DEBUG_ENABLE, "SET_Timer: cID = %x, attrID = %x, sec = %d\r\n",
                       pEntry->clusterID, pEntry->attrID, seconds);
 
                 pTimerEvt->pEntry = pEntry;

@@ -17,8 +17,19 @@ typedef struct {
     uint32_t    gpio;
 } app_button_t;
 
+static ev_timer_event_t *timerClearSleepEvt = NULL;
 static app_button_t app_button[DEVICE_BUTTON_MAX];
 //static app_button_t *app_button = app_button_cfg;
+
+static int32_t clearSleepCb(void *args) {
+
+    DEBUG(DEBUG_PM_EN, "clearSleepCb\r\n");
+
+    if (!g_appCtx.ota) g_appCtx.not_sleep = false;
+
+    timerClearSleepEvt = NULL;
+    return -1;
+}
 
 static void button_factory_reset_start(void *args) {
 
@@ -33,19 +44,8 @@ static void button_factory_reset_start(void *args) {
     app_setPollRate(TIMEOUT_2MIN);
 }
 
-static int32_t resetMsiTimerCb(void *args) {
-
-    uint8_t i = (uint8_t)((uint32_t)args);
-
-    zcl_msInputAttr_t *msInputAttr = zcl_msInputAttrsGet();
-    msInputAttr += i;
-    msInputAttr->value = ACTION_EMPTY;
-
-
-    return -1;
-}
-
 static void read_switch_multifunction(uint8_t i) {
+    bool report = false;
     app_button_t *button = &app_button[i];
     zcl_msInputAttr_t *msInputAttr = zcl_msInputAttrsGet();
     msInputAttr += i;
@@ -57,6 +57,8 @@ static void read_switch_multifunction(uint8_t i) {
                     button->hold = true;
                     DEBUG(DEBUG_BUTTON_EN, "Press and hold button: %d\r\n", i+1);
                     msInputAttr->value = ACTION_HOLD;
+                    DEBUG(DEBUG_REPORTING_EN, "MSI report ep: %d value %d\r\n", i+1, msInputAttr->value);
+                    app_forcedReport(i+1, ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC, ZCL_MULTISTATE_INPUT_ATTRID_PRESENT_VALUE);
                 }
             }
         }
@@ -88,35 +90,47 @@ static void read_switch_multifunction(uint8_t i) {
     }
 
     if (button->released && clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
-        if (button->hold) {
-            msInputAttr->value = ACTION_RELEASE;
-            DEBUG(DEBUG_BUTTON_EN, "Released button: %d\r\n", i+1);
+
+        if (button->counter >= FR_COUNTER_MAX) {
+            DEBUG(DEBUG_BUTTON_EN, "Reset Factory\r\n");
+            button_factory_reset_start(NULL);
         } else {
-            switch(button->counter) {
-                case ACTION_SINGLE:                                         // 1
-                case ACTION_DOUBLE:                                         // 2
-                case ACTION_TRIPLE:                                         // 3
-                    msInputAttr->value = button->counter;
-                    DEBUG(DEBUG_BUTTON_EN, "Button %d press %d times\r\n", i+1, msInputAttr->value);
-                    break;
-//                case ACTION_CLEAR:                                          // 250
-//                    msInputAttr->value = ACTION_EMPTY;                      // 300
-//                    report = true;
-//                    break;
-                default:
-                    if (button->counter >= FR_COUNTER_MAX) {
-                        DEBUG(DEBUG_BUTTON_EN, "Reset Factory\r\n");
-                        button_factory_reset_start(NULL);
-                    }
-                    break;
+            g_appCtx.not_sleep = true;
+            if (timerClearSleepEvt) {
+                TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
+            }
+            if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
+                timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
             }
 
+            if (button->hold) {
+                msInputAttr->value = ACTION_RELEASE;
+                report = true;
+                DEBUG(DEBUG_BUTTON_EN, "Released button: %d\r\n", i+1);
+            } else {
+                switch(button->counter) {
+                    case ACTION_SINGLE:                                         // 1
+                    case ACTION_DOUBLE:                                         // 2
+                    case ACTION_TRIPLE:                                         // 3
+                        msInputAttr->value = button->counter;
+                        DEBUG(DEBUG_BUTTON_EN, "Button %d press %d times\r\n", i+1, msInputAttr->value);
+                        report = true;
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+            if (report) {
+                DEBUG(DEBUG_REPORTING_EN, "MSI report ep: %d value %d\r\n", i+1, msInputAttr->value);
+                app_forcedReport(i+1, ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC, ZCL_MULTISTATE_INPUT_ATTRID_PRESENT_VALUE);
+            }
         }
+
         button->counter = 0;
         button->pressed = false;
         button->released = false;
         button->hold = false;
-        TL_ZB_TIMER_SCHEDULE(resetMsiTimerCb, (void*)((uint32_t)i), TIMEOUT_750MS);
     }
 }
 
