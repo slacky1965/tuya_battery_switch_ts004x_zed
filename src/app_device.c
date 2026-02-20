@@ -68,6 +68,7 @@ nv_sts_t device_settings_default() {
     for (uint8_t i = 0; i < DEVICE_BUTTON_MAX; i++) {
         device_settings.switchActions[i] = ZCL_SWITCH_ACTION_TOGGLE;
         device_settings.switchType[i] = ZCL_SWITCH_TYPE_TOGGLE;
+        device_settings.defaultMoveRate[i] = DEFAULT_MOVE_RATE;
     }
 
     device_settings.crc = checksum((uint8_t*)&device_settings, sizeof(device_settings_t)-1);
@@ -104,13 +105,15 @@ nv_sts_t device_settings_restore() {
         for (uint8_t i = 0; i < DEVICE_BUTTON_MAX; i++) {
             device_settings_tmp.switchActions[i] = ZCL_SWITCH_ACTION_TOGGLE;
             device_settings_tmp.switchType[i] = ZCL_SWITCH_TYPE_TOGGLE;
+            device_settings_tmp.defaultMoveRate[i] = DEFAULT_MOVE_RATE;
         }
     }
 
     memcpy(&device_settings, &device_settings_tmp, (sizeof(device_settings_t)));
     for (uint8_t i = 0; i < DEVICE_BUTTON_MAX; i++) {
-        g_zcl_onOffCfgAttrs[i].custom_swtichType = g_zcl_onOffCfgAttrs[i].switchType = device_settings.switchType[i];
+        g_zcl_onOffCfgAttrs[i].custom_swtichType = device_settings.switchType[i];
         g_zcl_onOffCfgAttrs[i].switchActions = device_settings.switchActions[i];
+        g_zcl_levelAttrs[i].defaultMoveRate = device_settings.defaultMoveRate[i];
     }
 
 #else

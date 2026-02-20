@@ -1,9 +1,14 @@
 #ifndef SRC_ZCL_ZCL_CUSTOM_ATTR_H_
 #define SRC_ZCL_ZCL_CUSTOM_ATTR_H_
 
-#define ZCL_CUSTOM_ATTRID_SWITCH_TYPE       0xF000
-#define ZCL_CUSTOM_ATTRID_DEVICE_MODEL      0xF002
+#define ZCL_CUSTOM_ATTRID_SWITCH_TYPE                   0xF000
+#define ZCL_CUSTOM_ATTRID_DEVICE_MODEL                  0xF002
 
+#define ZCL_CUSTOM_SWITCH_TYPE_LEVEL_MOVE_UP            0x03
+#define ZCL_CUSTOM_SWITCH_TYPE_LEVEL_MOVE_DOWN          0x04
 
+#define ZCL_CUSTOM_SWITCH_TYPE_MAXNUM                   0x05
+
+#define DEFAULT_MOVE_RATE                               100
 
 #endif /* SRC_ZCL_ZCL_CUSTOM_ATTR_H_ */

@@ -9,6 +9,7 @@ typedef struct {
     bool        released;
     bool        pressed;
     bool        hold;
+    bool        level_up;
     uint8_t     counter;
     uint8_t     debounce;
     uint32_t    pressed_time;
@@ -44,7 +45,107 @@ static void button_factory_reset_start(void *args) {
     app_setPollRate(TIMEOUT_2MIN);
 }
 
-static void read_switch_multifunction(uint8_t i) {
+static void read_button_level(uint8_t i) {
+    uint8_t up_down = 0xFF;
+    uint8_t cmdOnOff = 0xFF;
+    app_button_t *button = &app_button[i];
+    zcl_levelAttr_t *levelAttr = zcl_levelAttrsGet();
+    levelAttr += i;
+
+    switch(device_settings.switchType[i]) {
+        case ZCL_CUSTOM_SWITCH_TYPE_LEVEL_MOVE_UP:
+            up_down = LEVEL_MOVE_UP;
+            cmdOnOff = ZCL_CMD_ONOFF_ON;
+            break;
+        case ZCL_CUSTOM_SWITCH_TYPE_LEVEL_MOVE_DOWN:
+            up_down = LEVEL_MOVE_DOWN;
+            cmdOnOff = ZCL_CMD_ONOFF_OFF;
+            break;
+        default:
+            break;
+    }
+
+    if (!drv_gpio_read(button->gpio)) {
+        if (button->pressed) {
+            if (clock_time_exceed(button->hold_time, TIMEOUT_TICK_750MS)) {
+                if (!button->hold) {
+                    button->hold = true;
+                    DEBUG(DEBUG_BUTTON_EN, "Press and hold button: %d\r\n", i+1);
+
+                    if ( up_down != 0xFF) {
+                        app_level_move(i+1, up_down);
+                    }
+                }
+            }
+        }
+        if (button->debounce != DEBOUNCE_BUTTON) {
+            button->debounce++;
+            if (button->debounce == DEBOUNCE_BUTTON) {
+                button->pressed = true;
+                DEBUG(DEBUG_BUTTON_EN, "Key %d pressed\r\n", i+1);
+                light_blink_start(1, 30, 1);
+                if (!clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
+                    button->counter++;
+                } else {
+                    button->counter = 1;
+                    if (!zb_isDeviceJoinedNwk() && !zb_isDeviceFactoryNew()) {
+                        zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+                    }
+                }
+                button->hold_time = button->pressed_time = clock_time();
+            }
+        }
+    } else {
+        if (button->debounce != 1) {
+            button->debounce--;
+            if (button->debounce == 1 && button->pressed) {
+                button->released = true;
+                DEBUG(DEBUG_BUTTON_EN, "Key %d released\r\n", i+1);
+            }
+        }
+    }
+
+    if (button->released && clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
+
+        if (button->counter >= FR_COUNTER_MAX) {
+            DEBUG(DEBUG_BUTTON_EN, "Reset Factory\r\n");
+            button_factory_reset_start(NULL);
+        } else {
+            g_appCtx.not_sleep = true;
+            if (timerClearSleepEvt) {
+                TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
+            }
+            if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
+                timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
+            }
+
+            if (button->hold) {
+                DEBUG(DEBUG_BUTTON_EN, "Released button: %d\r\n", i+1);
+                app_level_stop(i+1);
+            } else {
+                DEBUG(DEBUG_BUTTON_EN, "Button %d press %d times\r\n", i+1, button->counter);
+                switch(button->counter) {
+                    case ACTION_SINGLE:                                         // 1
+                        app_cmdOnOff(i+1, cmdOnOff);
+                        break;
+                    case ACTION_DOUBLE:                                         // 2
+                        app_level_step(i+1, up_down);
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+        }
+
+        button->counter = 0;
+        button->pressed = false;
+        button->released = false;
+        button->hold = false;
+    }
+}
+
+static void read_button_multifunction(uint8_t i) {
     bool report = false;
     app_button_t *button = &app_button[i];
     zcl_msInputAttr_t *msInputAttr = zcl_msInputAttrsGet();
@@ -158,7 +259,6 @@ static void read_button_toggle(uint8_t i) {
                     button->pressed_time = clock_time();
                     button->counter = 1;
                     if(zb_isDeviceJoinedNwk()) {
-//                        app_setPollRate(TIMEOUT_5SEC);
                         cmd_onoff = ZCL_CMD_ONOFF_ON;
                         switch(device_settings.switchActions[i]) {
                             case ZCL_SWITCH_ACTION_OFF_ON:
@@ -173,7 +273,7 @@ static void read_button_toggle(uint8_t i) {
                             default:
                                 break;
                         }
-                        cmdOnOff(i+1, cmd_onoff);
+                        app_cmdOnOff(i+1, cmd_onoff);
                     } else if (!zb_isDeviceFactoryNew()) {
                         zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
                     }
@@ -202,10 +302,9 @@ static void read_button_toggle(uint8_t i) {
                             default:
                                 break;
                         }
-                        cmdOnOff(i+1, cmd_onoff);
+                        app_cmdOnOff(i+1, cmd_onoff);
                     }
                 }
-//                button->released_time = clock_time();
             }
         }
     }
@@ -221,20 +320,26 @@ static void read_button_toggle(uint8_t i) {
 void button_handler() {
 
     for (uint8_t i = 0; i < (device_button_model + 1); i++) {
-        if (device_settings.switchType[i] == ZCL_SWITCH_TYPE_MULTIFUNCTION) {
-            read_switch_multifunction(i);
-        } else {
-            read_button_toggle(i);
-        }
-//        switch(device_settings.switchType[i]) {
-//            case ZCL_SWITCH_TYPE_TOGGLE:
-//            case ZCL_SWITCH_TYPE_MOMENTARY:
-//                break;
-//            case ZCL_SWITCH_TYPE_MULTIFUNCTION:
-//                break;
-//            default:
-//                break;
+//        if (device_settings.switchType[i] == ZCL_SWITCH_TYPE_MULTIFUNCTION) {
+//            read_button_multifunction(i);
+//        } else {
+//            read_button_toggle(i);
 //        }
+        switch(device_settings.switchType[i]) {
+            case ZCL_SWITCH_TYPE_TOGGLE:
+            case ZCL_SWITCH_TYPE_MOMENTARY:
+                read_button_toggle(i);
+                break;
+            case ZCL_SWITCH_TYPE_MULTIFUNCTION:
+                read_button_multifunction(i);
+                break;
+            case ZCL_CUSTOM_SWITCH_TYPE_LEVEL_MOVE_UP:
+            case ZCL_CUSTOM_SWITCH_TYPE_LEVEL_MOVE_DOWN:
+                read_button_level(i);
+                break;
+            default:
+                break;
+        }
     }
 }
 
@@ -264,6 +369,7 @@ void button_init() {
         button->counter = 0;
         button->pressed = false;
         button->released = false;
+        button->level_up = false;
         button->pressed_time = clock_time();
     }
 }

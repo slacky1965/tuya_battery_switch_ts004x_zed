@@ -16,8 +16,20 @@ typedef enum {
 } device_button_model_t;
 
 typedef struct __attribute__((packed)) {
-    uint8_t switchType[DEVICE_BUTTON_MAX];      // 0x00 - toggle, 0x01 - momentary
+    /*
+     * custom switchType
+     * 0x00 - toggle
+     * 0x01 - momentary
+     * 0x02 - multifunction
+     * 0x03 - level move up
+     * 0x04 - level move down
+     * 0x05 - level move up with onoff
+     * 0x06 - level move down with onoff
+     * 0x07 - level stop
+     */
+    uint8_t switchType[DEVICE_BUTTON_MAX];
     uint8_t switchActions[DEVICE_BUTTON_MAX];
+    uint8_t defaultMoveRate[DEVICE_BUTTON_MAX];
     uint8_t crc;
 } device_settings_t;
 

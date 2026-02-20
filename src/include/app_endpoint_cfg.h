@@ -79,6 +79,18 @@ typedef struct {
     uint8_t     status_flag;
 } zcl_msInputAttr_t;
 
+/**
+ *  @brief Defined for level cluster attributes
+ */
+typedef struct {
+    uint8_t     currentLevel;
+    uint8_t     minLevel;
+    uint8_t     maxLevel;
+    uint8_t     options;
+    uint8_t     defaultMoveRate;
+} zcl_levelAttr_t;
+
+
 extern const zcl_specClusterInfo_t g_appEp1ClusterList[];
 extern const zcl_specClusterInfo_t g_appEp2ClusterList[];
 extern const zcl_specClusterInfo_t g_appEp3ClusterList[];
@@ -106,10 +118,12 @@ extern zcl_groupAttr_t              g_zcl_groupAttrs[];
 extern zcl_sceneAttr_t              g_zcl_sceneAttrs[];
 extern zcl_onOffCfgAttr_t           g_zcl_onOffCfgAttrs[];
 extern zcl_msInputAttr_t            g_zcl_msInputAttrs[];
+extern zcl_levelAttr_t              g_zcl_levelAttrs[];
 
 #define zcl_groupAttrsGet()         g_zcl_groupAttrs
 #define zcl_sceneAttrGet()          g_zcl_sceneAttrs
 #define zcl_onOffCfgAttrsGet()      g_zcl_onOffCfgAttrs;
 #define zcl_msInputAttrsGet()       g_zcl_msInputAttrs;
+#define zcl_levelAttrsGet()         g_zcl_levelAttrs;
 
 #endif /* SRC_INCLUDE_APP_ENDPOINT_CFG_H_ */

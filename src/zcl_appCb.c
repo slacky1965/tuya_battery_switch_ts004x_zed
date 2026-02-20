@@ -183,9 +183,11 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
             if (attr[i].attrID == ZCL_CUSTOM_ATTRID_SWITCH_TYPE) {
                 uint8_t type = attr[i].attrData[0];
 //                printf("type: 0x%02x, ep: %d\r\n", type, endPoint);
-                device_settings.switchType[idx] = type;
-                pOnOffCfg->switchType = type;
-                save = true;
+                if (type >= ZCL_SWITCH_TYPE_TOGGLE && type < ZCL_CUSTOM_SWITCH_TYPE_MAXNUM) {
+                    device_settings.switchType[idx] = type;
+                    pOnOffCfg->switchType = type;
+                    save = true;
+                }
             } else if (attr[i].attrID == ZCL_ATTRID_SWITCH_ACTION) {
                 uint8_t action = attr[i].attrData[0];
 //                printf("action: 0x%02x, ep: %d\r\n", action, endPoint);
@@ -198,6 +200,17 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                 if (model >= DEVICE_BUTTON_1 && model < DEVICE_BUTTON_MAX) {
                     device_model_save(model);
                 }
+            }
+        }
+    }
+
+    if (clusterId == ZCL_CLUSTER_GEN_LEVEL_CONTROL) {
+        for (u8 i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE) {
+                uint8_t rate = attr[i].attrData[0];
+//                printf("Level rate: 0x%02x, ep: %d\r\n", rate, endPoint);
+                device_settings.defaultMoveRate[idx] = rate;
+                save = true;
             }
         }
     }
@@ -255,6 +268,21 @@ static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgRepo
 //        }
 //
 //    }
+
+    if (clusterId == ZCL_CLUSTER_GEN_POWER_CFG) {
+        for (uint8_t i = 0; i < pCfgReportCmd->numAttr; i++) {
+            if (pCfgReportCmd->attrList[i].attrID == ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING) {
+                DEBUG(DEBUG_REPORTING_EN, "Battery reporting configure - ep: %d, clId: 0x%04x, attrId: 0x%04x, maxInterval: %d\r\n",
+                        endPoint, clusterId, pCfgReportCmd->attrList[i].attrID, pCfgReportCmd->attrList[i].maxReportInt);
+
+                if (g_appCtx.timerBatteryEvt) {
+                    TL_ZB_TIMER_CANCEL(&g_appCtx.timerBatteryEvt);
+                }
+                g_appCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, pCfgReportCmd->attrList[i].maxReportInt * 1000);
+            }
+        }
+    }
+
     app_setPollRate(TIMEOUT_20SEC);
 }
 
@@ -888,5 +916,32 @@ status_t app_msInputCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cm
     status_t status = ZCL_STA_SUCCESS;
 
     return status;
+}
+
+/*********************************************************************
+ * @fn      app_levelCb
+ *
+ * @brief   Handler for ZCL LEVEL command. This function will set LEVEL attribute first.
+ *
+ * @param   pAddrInfo
+ * @param   cmd - level cluster command id
+ * @param   cmdPayload
+ *
+ * @return  status_t
+ */
+
+status_t app_levelCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload) {
+    printf("app_LevelCb\r\n");
+//    if(pAddrInfo->dstEp == APP_ENDPOINT1 || pAddrInfo->dstEp == APP_ENDPOINT2) {
+//        switch(cmdId){
+//            case ZCL_CMD_LEVEL_MOVE_TO_LEVEL:
+//                app_displayMoveToLevelProcess(pAddrInfo->dstEp, cmdId, (moveToLvl_t *)cmdPayload);
+//                break;
+//            default:
+//                break;
+//        }
+//    }
+
+    return ZCL_STA_SUCCESS;
 }
 
