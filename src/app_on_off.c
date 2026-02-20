@@ -22,7 +22,7 @@ static void cmdOnOffSend(uint8_t ep, epInfo_t *dstEpInfo, uint8_t command) {
     }
 }
 
-void cmdOnOff(uint8_t ep, uint8_t command) {
+void app_cmdOnOff(uint8_t ep, uint8_t command) {
 
     epInfo_t dstEpInfo;
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
