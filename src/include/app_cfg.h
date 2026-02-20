@@ -69,12 +69,13 @@
 #define USB_PRINTF_MODE         		OFF
 
 #define DEBUG_BUTTON_EN                 ON
-#define DEBUG_SAVE_EN                   ON
+#define DEBUG_SAVE_EN                   OFF
 #define DEBUG_REPORTING_EN              ON
 #define DEBUG_BATTERY_EN                OFF
 #define DEBUG_PM_EN                     ON
-#define DEBUG_OTA_EN                    ON
-#define DEBUG_ONOFF_EN                  ON
+#define DEBUG_OTA_EN                    OFF
+#define DEBUG_ONOFF_EN                  OFF
+#define DEBUG_LEVEL_EN                  OFF
 
 /* PM */
 #define PM_ENABLE						ON
@@ -153,6 +154,7 @@
 #define ZCL_ON_OFF_SUPPORT                          ON
 #define ZCL_ON_OFF_SWITCH_CFG_SUPPORT               ON
 #define ZCL_MULTISTATE_INPUT_SUPPORT                ON
+#define ZCL_LEVEL_CTRL_SUPPORT                      ON
 
 /**********************************************************************
  * Stack configuration
