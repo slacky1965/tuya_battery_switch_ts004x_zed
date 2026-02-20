@@ -64,11 +64,7 @@ void app_lowPowerEnter() {
         uint32_t r = drv_disable_irq();
         rf_paShutDown();
 
-        if (g_appCtx.timerOnOffRepeatEvt) {
-            durationMs = g_appCtx.timerOnOffRepeatEvt->timeout;
-        } else {
-            durationMs = TIME_LONG_DEEP_SLEEP * 1000;
-        }
+        durationMs = g_appCtx.timerBatteryEvt->timeout /*TIME_LONG_DEEP_SLEEP * 1000*/;
 
         DEBUG(DEBUG_PM_EN, "Long deep sleep start with time: %d sec\r\n", durationMs / 1000);
 
