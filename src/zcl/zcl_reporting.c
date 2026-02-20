@@ -493,6 +493,8 @@ _CODE_ZCL_ static void reportAttrs(void)
             dstEpInfo.profileId = profileID;
 
             zcl_sendReportAttrsCmd(endpoint, &dstEpInfo, TRUE, ZCL_FRAME_SERVER_CLIENT_DIR, clusterID, (zclReportCmd_t *)&report);
+            DEBUG(DEBUG_REPORTING_EN, "ep: 0x%04x, cl: 0x%04x, attr: 0x%04x, time: 0x%08x\r\n",
+                    endpoint, clusterID, report.attr[0].attrID, clock_time());
         }
     } while (again);
 }
