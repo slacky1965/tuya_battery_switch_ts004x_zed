@@ -21,7 +21,7 @@
 | TS0041-z-SlD        | TS0041                | TS0041    | ---                         | OTA file      | :camera: |
 | TS0042-z-SlD        | TS0042                | TS0042    | ---                         | OTA file      | :camera: |
 | TS0043-z-SlD        | TS0043                | TS0043    | ---                         | OTA file      | :camera: |
-| TS0044-z-SlD        | TS0044                | TS0043    | _TZ3000_ee8nrt2l            | OTA file      | :camera: |
+| TS0044-z-SlD        | TS0044                | [TS0043](https://www.zigbee2mqtt.io/devices/TS0043.html)    | _TZ3000_ee8nrt2l            | [OTA file](bin/1141-d3a3-1111114b-tuya_battery_switch_ts004x_zed_model_4.zigbee)      | :camera: |
 
 ## Зачем. 
 
@@ -90,6 +90,7 @@
 	- `scene` - работа со сценами. Сцены создаются в управляемом устройстве во вкладке `Scene` или в группе. При нажатии на кнопку посылается команда `Recall scene` на устройство или в группу.
 - `Scene id (Endpoint: X)` - номер сцены (от `0` до `255`).
 - `Group id (Endpoint: X)` - номер группы, если сцена была создана в группе (от `1` до `0xfff7`). Если сцена в группе не создавалось, это поле должно оставаться со значение `0`.
+- `Action` - показывает название присланных команд и атрибутов в символьном виде.
 
 
 `(Endpoint: X)` - X - номер эндпоинта. Зависит от количества кнопок. Может быть от `1` до `6`. Соответственно и полей с настройками `Switch actions`, `Switch type`, `Scene id` , `Group id` тоже будет от `1` до `6`.
