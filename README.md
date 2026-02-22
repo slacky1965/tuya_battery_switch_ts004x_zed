@@ -2,7 +2,7 @@
 
 ## TODO
 
-<img src="doc/images/LoraTap_TS0044.jpg"/>
+<img src="doc/images/LoraTap_TS004x.jpg"/>
 
 > [!WARNING]
 > Пока все сделано только для 4-х кнопочного пульта. Поэтому описание пока будет под него.
