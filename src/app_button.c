@@ -19,8 +19,9 @@ typedef struct {
 } app_button_t;
 
 static ev_timer_event_t *timerClearSleepEvt = NULL;
+static ev_timer_event_t *timerFactoryResetEvt = NULL;
 static app_button_t app_button[DEVICE_BUTTON_MAX];
-//static app_button_t *app_button = app_button_cfg;
+bool factory_reset = false;
 
 static int32_t clearSleepCb(void *args) {
 
@@ -32,9 +33,11 @@ static int32_t clearSleepCb(void *args) {
     return -1;
 }
 
-static void button_factory_reset_start(void *args) {
+static void button_factory_reset_start() {
 
     DEBUG(DEBUG_BUTTON_EN, "button_factory_reset_start\r\n");
+
+    factory_reset = false;
 
     zb_factoryReset();
 
@@ -44,6 +47,19 @@ static void button_factory_reset_start(void *args) {
     light_blink_start(90, 100, 1000);
     app_setPollRate(TIMEOUT_2MIN);
 }
+
+static int32_t factoryResetCb(void *args) {
+
+    DEBUG(DEBUG_BUTTON_EN, "factoryResetCb\r\n");
+
+    if (!g_appCtx.ota) g_appCtx.not_sleep = false;
+
+    factory_reset = false;
+
+    timerFactoryResetEvt = NULL;
+    return -1;
+}
+
 
 static void read_button_level(uint8_t i) {
     uint8_t up_down = 0xFF;
@@ -70,10 +86,17 @@ static void read_button_level(uint8_t i) {
             if (clock_time_exceed(button->hold_time, TIMEOUT_TICK_750MS)) {
                 if (!button->hold) {
                     button->hold = true;
-                    DEBUG(DEBUG_BUTTON_EN, "Press and hold button: %d\r\n", i+1);
+                    if (!factory_reset) {
+                        DEBUG(DEBUG_BUTTON_EN, "Press and hold button: %d\r\n", i+1);
 
-                    if ( up_down != 0xFF) {
-                        app_level_move(i+1, up_down);
+                        if ( up_down != 0xFF) {
+                            app_level_move(i+1, up_down);
+                        }
+                    } else {
+                        if (timerFactoryResetEvt) {
+                            TL_ZB_TIMER_CANCEL(&timerFactoryResetEvt);
+                        }
+                        button_factory_reset_start();
                     }
                 }
             }
@@ -82,7 +105,7 @@ static void read_button_level(uint8_t i) {
             button->debounce++;
             if (button->debounce == DEBOUNCE_BUTTON) {
                 button->pressed = true;
-                DEBUG(DEBUG_BUTTON_EN, "Key %d pressed\r\n", i+1);
+                DEBUG(DEBUG_BUTTON_EN, "Key %d pressed level\r\n", i+1);
                 light_blink_start(1, 30, 1);
                 if (!clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
                     button->counter++;
@@ -100,18 +123,24 @@ static void read_button_level(uint8_t i) {
             button->debounce--;
             if (button->debounce == 1 && button->pressed) {
                 button->released = true;
-                DEBUG(DEBUG_BUTTON_EN, "Key %d released\r\n", i+1);
+                DEBUG(DEBUG_BUTTON_EN, "Key %d released level\r\n", i+1);
             }
         }
     }
 
     if (button->released && clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
 
+        g_appCtx.not_sleep = true;
         if (button->counter >= FR_COUNTER_MAX) {
-            DEBUG(DEBUG_BUTTON_EN, "Reset Factory\r\n");
-            button_factory_reset_start(NULL);
+            DEBUG(DEBUG_BUTTON_EN, "Reset Factory is ready from level\r\n");
+            factory_reset = true;
+            light_blink_stop();
+            light_on();
+            if (timerFactoryResetEvt) {
+                TL_ZB_TIMER_CANCEL(&timerFactoryResetEvt);
+            }
+            timerFactoryResetEvt = TL_ZB_TIMER_SCHEDULE(factoryResetCb, NULL, TIMEOUT_3SEC);
         } else {
-            g_appCtx.not_sleep = true;
             if (timerClearSleepEvt) {
                 TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
             }
@@ -156,10 +185,17 @@ static void read_button_multifunction(uint8_t i) {
             if (clock_time_exceed(button->hold_time, TIMEOUT_TICK_750MS)) {
                 if (!button->hold) {
                     button->hold = true;
-                    DEBUG(DEBUG_BUTTON_EN, "Press and hold button: %d\r\n", i+1);
-                    msInputAttr->value = ACTION_HOLD;
-                    DEBUG(DEBUG_REPORTING_EN, "MSI report ep: %d value %d\r\n", i+1, msInputAttr->value);
-                    app_forcedReport(i+1, ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC, ZCL_MULTISTATE_INPUT_ATTRID_PRESENT_VALUE);
+                    if (!factory_reset) {
+                        DEBUG(DEBUG_BUTTON_EN, "Press and hold button: %d\r\n", i+1);
+                        msInputAttr->value = ACTION_HOLD;
+                        DEBUG(DEBUG_REPORTING_EN, "MSI report ep: %d value %d\r\n", i+1, msInputAttr->value);
+                        app_forcedReport(i+1, ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC, ZCL_MULTISTATE_INPUT_ATTRID_PRESENT_VALUE);
+                    } else {
+                        if (timerFactoryResetEvt) {
+                            TL_ZB_TIMER_CANCEL(&timerFactoryResetEvt);
+                        }
+                        button_factory_reset_start();
+                    }
                 }
             }
         }
@@ -167,7 +203,7 @@ static void read_button_multifunction(uint8_t i) {
             button->debounce++;
             if (button->debounce == DEBOUNCE_BUTTON) {
                 button->pressed = true;
-                DEBUG(DEBUG_BUTTON_EN, "Key %d pressed\r\n", i+1);
+                DEBUG(DEBUG_BUTTON_EN, "Key %d pressed multifunction\r\n", i+1);
                 light_blink_start(1, 30, 1);
                 if (!clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
                     button->counter++;
@@ -185,18 +221,24 @@ static void read_button_multifunction(uint8_t i) {
             button->debounce--;
             if (button->debounce == 1 && button->pressed) {
                 button->released = true;
-                DEBUG(DEBUG_BUTTON_EN, "Key %d released\r\n", i+1);
+                DEBUG(DEBUG_BUTTON_EN, "Key %d released multifunction\r\n", i+1);
             }
         }
     }
 
     if (button->released && clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
 
+        g_appCtx.not_sleep = true;
         if (button->counter >= FR_COUNTER_MAX) {
-            DEBUG(DEBUG_BUTTON_EN, "Reset Factory\r\n");
-            button_factory_reset_start(NULL);
+            DEBUG(DEBUG_BUTTON_EN, "Reset Factory is ready from multifunction\r\n");
+            factory_reset = true;
+            light_blink_stop();
+            light_on();
+            if (timerFactoryResetEvt) {
+                TL_ZB_TIMER_CANCEL(&timerFactoryResetEvt);
+            }
+            timerFactoryResetEvt = TL_ZB_TIMER_SCHEDULE(factoryResetCb, NULL, TIMEOUT_3SEC);
         } else {
-            g_appCtx.not_sleep = true;
             if (timerClearSleepEvt) {
                 TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
             }
@@ -235,28 +277,114 @@ static void read_button_multifunction(uint8_t i) {
     }
 }
 
+static void read_button_scene(uint8_t i) {
+    app_button_t *button = &app_button[i];
+
+    if (!drv_gpio_read(button->gpio)) {
+        if (button->pressed) {
+            if (clock_time_exceed(button->hold_time, TIMEOUT_TICK_750MS)) {
+                if (!button->hold) {
+                    button->hold = true;
+                    DEBUG(DEBUG_BUTTON_EN, "Press and hold button: %d\r\n", i+1);
+                    if (factory_reset) {
+                        if (timerFactoryResetEvt) {
+                            TL_ZB_TIMER_CANCEL(&timerFactoryResetEvt);
+                        }
+                        button_factory_reset_start();
+                    }
+                }
+            }
+        }
+        if (button->debounce != DEBOUNCE_BUTTON) {
+            button->debounce++;
+            if (button->debounce == DEBOUNCE_BUTTON) {
+                DEBUG(DEBUG_BUTTON_EN, "Key %d pressed scene\r\n", i+1);
+                light_blink_start(1, 30, 1);
+                if (button->pressed && !clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
+                    button->counter++;
+                    if (button->counter >= FR_COUNTER_MAX) {
+                        DEBUG(DEBUG_BUTTON_EN, "Reset Factory is ready from scene\r\n");
+                        g_appCtx.not_sleep = true;
+                        factory_reset = true;
+                        light_blink_stop();
+                        light_on();
+                        if (timerFactoryResetEvt) {
+                            TL_ZB_TIMER_CANCEL(&timerFactoryResetEvt);
+                        }
+                        timerFactoryResetEvt = TL_ZB_TIMER_SCHEDULE(factoryResetCb, NULL, TIMEOUT_3SEC);
+                        button->counter = 0;
+                    }
+                } else {
+                    button->pressed = true;
+                    button->counter = 1;
+                    if(zb_isDeviceJoinedNwk()) {
+                        app_scene_send(i+1);
+                    } else if (!zb_isDeviceFactoryNew()) {
+                        zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+                    }
+                }
+                button->hold_time = button->pressed_time = clock_time();
+            }
+        }
+    } else {
+        if (button->debounce != 1) {
+            button->debounce--;
+            if (button->debounce == 1 && button->pressed) {
+                button->released = true;
+                DEBUG(DEBUG_BUTTON_EN, "Key %d released scene\r\n", i+1);
+            }
+        }
+    }
+
+    if (button->released && clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
+        button->counter = 0;
+        button->pressed = false;
+        button->released = false;
+        button->hold = false;
+    }
+}
+
 static void read_button_toggle(uint8_t i) {
     uint8_t cmd_onoff;
 
     app_button_t *button = &app_button[i];
 
     if (!drv_gpio_read(button->gpio)) {
+        if (button->pressed) {
+            if (clock_time_exceed(button->hold_time, TIMEOUT_TICK_750MS)) {
+                if (!button->hold) {
+                    button->hold = true;
+                    DEBUG(DEBUG_BUTTON_EN, "Press and hold button: %d\r\n", i+1);
+                    if (factory_reset) {
+                        if (timerFactoryResetEvt) {
+                            TL_ZB_TIMER_CANCEL(&timerFactoryResetEvt);
+                        }
+                        button_factory_reset_start();
+                    }
+                }
+            }
+        }
         if (button->debounce != DEBOUNCE_BUTTON) {
             button->debounce++;
             if (button->debounce == DEBOUNCE_BUTTON) {
-                DEBUG(DEBUG_BUTTON_EN, "Key %d pressed\r\n", i+1);
+                DEBUG(DEBUG_BUTTON_EN, "Key %d pressed toggle\r\n", i+1);
                 light_blink_start(1, 30, 1);
                 if (button->pressed && !clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
-                    button->pressed_time = clock_time();
                     button->counter++;
                     if (button->counter >= FR_COUNTER_MAX) {
-                        DEBUG(DEBUG_BUTTON_EN, "Factory reset\r\n");
-                        button_factory_reset_start(NULL);
+                        DEBUG(DEBUG_BUTTON_EN, "Reset Factory is ready from toggle\r\n");
+                        g_appCtx.not_sleep = true;
+                        factory_reset = true;
+                        light_blink_stop();
+                        light_on();
+                        if (timerFactoryResetEvt) {
+                            TL_ZB_TIMER_CANCEL(&timerFactoryResetEvt);
+                        }
+                        timerFactoryResetEvt = TL_ZB_TIMER_SCHEDULE(factoryResetCb, NULL, TIMEOUT_3SEC);
                         button->counter = 0;
                     }
                 } else {
                     button->pressed = true;
-                    button->pressed_time = clock_time();
                     button->counter = 1;
                     if(zb_isDeviceJoinedNwk()) {
                         cmd_onoff = ZCL_CMD_ONOFF_ON;
@@ -278,6 +406,7 @@ static void read_button_toggle(uint8_t i) {
                         zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
                     }
                 }
+                button->hold_time = button->pressed_time = clock_time();
             }
         }
     } else {
@@ -285,7 +414,7 @@ static void read_button_toggle(uint8_t i) {
             button->debounce--;
             if (button->debounce == 1 && button->pressed) {
                 button->released = true;
-                DEBUG(DEBUG_BUTTON_EN, "Key %d released\r\n", i+1);
+                DEBUG(DEBUG_BUTTON_EN, "Key %d released toggle\r\n", i+1);
                 if(button->counter == 1 && zb_isDeviceJoinedNwk()) {
                     if (device_settings.switchType[i] == ZCL_SWITCH_TYPE_MOMENTARY) {
                         cmd_onoff = ZCL_SWITCH_ACTION_ON_OFF;
@@ -313,18 +442,13 @@ static void read_button_toggle(uint8_t i) {
         button->counter = 0;
         button->pressed = false;
         button->released = false;
+        button->hold = false;
     }
-
 }
 
 void button_handler() {
 
     for (uint8_t i = 0; i < (device_button_model + 1); i++) {
-//        if (device_settings.switchType[i] == ZCL_SWITCH_TYPE_MULTIFUNCTION) {
-//            read_button_multifunction(i);
-//        } else {
-//            read_button_toggle(i);
-//        }
         switch(device_settings.switchType[i]) {
             case ZCL_SWITCH_TYPE_TOGGLE:
             case ZCL_SWITCH_TYPE_MOMENTARY:
@@ -336,6 +460,9 @@ void button_handler() {
             case ZCL_CUSTOM_SWITCH_TYPE_LEVEL_MOVE_UP:
             case ZCL_CUSTOM_SWITCH_TYPE_LEVEL_MOVE_DOWN:
                 read_button_level(i);
+                break;
+            case ZCL_CUSTOM_SWITCH_TYPE_SCENE:
+                read_button_scene(i);
                 break;
             default:
                 break;

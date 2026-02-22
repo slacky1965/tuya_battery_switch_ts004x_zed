@@ -26,7 +26,6 @@ int32_t batteryCb(void *arg) {
     DEBUG(DEBUG_BATTERY_EN, "Voltage:     %d\r\n", voltage);
     DEBUG(DEBUG_BATTERY_EN, "Level:       %d\r\n", level);
 
-    zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_VOLTAGE, &voltage);
     zcl_setAttrVal(APP_ENDPOINT1, ZCL_CLUSTER_GEN_POWER_CFG, ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING, &level);
 
     if(zb_isDeviceJoinedNwk()) {
