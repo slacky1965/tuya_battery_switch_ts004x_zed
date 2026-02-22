@@ -7,7 +7,7 @@
 >
 > **Автор не несет никакой ответственности, если вы, воспользовавшись этим проектом, превратите свой умный пульт (выключатель) в полоумный.**
 
-## [Ссылка на мииагазин](https://ali.click/09xe01e)
+## [Ссылка на магазин](https://ali.click/09xe01e)
 
 <!--
 | Custom Zigbee Model | Original Zigbee Model | Z2M Model | Original Zigbee Manufacturer| Update method | Photo    |
