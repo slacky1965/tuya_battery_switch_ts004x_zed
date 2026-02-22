@@ -47,18 +47,19 @@ typedef struct{
  *  @brief Defined for scene cluster attributes
  */
 typedef struct{
-    uint8_t   sceneCount;
-    uint8_t   currentScene;
-    uint8_t   nameSupport;
-    bool sceneValid;
-    uint16_t  currentGroup;
+    uint8_t  sceneCount;
+    uint8_t  currentScene;
+    uint8_t  nameSupport;
+    bool     sceneValid;
+    uint16_t currentGroup;
+    uint8_t  customScene;
+    uint16_t customGroup;
 }zcl_sceneAttr_t;
 
 /**
  *  @brief Defined for power configuration cluster attributes
  */
 typedef struct{
-    uint8_t  batteryVoltage;      //0x20
     uint8_t  batteryPercentage;   //0x21
 }zcl_powerAttr_t;
 

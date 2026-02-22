@@ -14,8 +14,6 @@ app_ctx_t g_appCtx = {
         .timerOnOffRepeatEvt = NULL,
         .oriSta = false,
         .net_steer_start = false,
-//        .read_sensor_time = 0,
-//        .leak = 0,
         .not_sleep = true,
         .ota = false,
         .battery_read = 0,
@@ -182,7 +180,7 @@ void app_task(void) {
         report_handler();
 #if PM_ENABLE
         button_handler();
-        if(!button_idle()) {
+        if(!button_idle() && !factory_reset) {
             app_lowPowerEnter();
         }
 #endif

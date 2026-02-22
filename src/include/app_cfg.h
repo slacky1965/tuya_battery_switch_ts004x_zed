@@ -76,6 +76,7 @@
 #define DEBUG_OTA_EN                    OFF
 #define DEBUG_ONOFF_EN                  OFF
 #define DEBUG_LEVEL_EN                  OFF
+#define DEBUG_SCENE_EN                  ON
 
 /* PM */
 #define PM_ENABLE						ON
@@ -149,6 +150,7 @@
  * ZCL cluster support setting
  */
 #define ZCL_GROUP_SUPPORT                           ON
+#define ZCL_SCENE_SUPPORT                           ON
 #define ZCL_POWER_CFG_SUPPORT                       ON
 #define ZCL_OTA_SUPPORT                             ON
 #define ZCL_ON_OFF_SUPPORT                          ON

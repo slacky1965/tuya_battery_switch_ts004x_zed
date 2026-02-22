@@ -182,7 +182,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
         for (u8 i = 0; i < numAttr; i++) {
             if (attr[i].attrID == ZCL_CUSTOM_ATTRID_SWITCH_TYPE) {
                 uint8_t type = attr[i].attrData[0];
-//                printf("type: 0x%02x, ep: %d\r\n", type, endPoint);
+                printf("type: 0x%02x, ep: %d\r\n", type, endPoint);
                 if (type >= ZCL_SWITCH_TYPE_TOGGLE && type < ZCL_CUSTOM_SWITCH_TYPE_MAXNUM) {
                     device_settings.switchType[idx] = type;
                     pOnOffCfg->switchType = type;
@@ -210,6 +210,23 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                 uint8_t rate = attr[i].attrData[0];
 //                printf("Level rate: 0x%02x, ep: %d\r\n", rate, endPoint);
                 device_settings.defaultMoveRate[idx] = rate;
+                save = true;
+            }
+        }
+    }
+
+    if (clusterId == ZCL_CLUSTER_GEN_SCENES) {
+        for (u8 i = 0; i < numAttr; i++) {
+            if (attr[i].attrID == ZCL_CUSTOM_ATTRID_SCENE_SCENE_ID) {
+                uint8_t scene = attr[i].attrData[0];
+                printf("Scne ID: 0x%02x, ep: %d\r\n", scene, endPoint);
+                device_settings.scene[idx].sceneId = scene;
+                save = true;
+            } else if (attr[i].attrID == ZCL_CUSTOM_ATTRID_SCENE_GROUP_ID) {
+                uint16_t group = attr[i].attrData[0] & 0xff;
+                group |= (attr[i].attrData[1] << 8) & 0xffff;
+                printf("Group ID: 0x%04x, ep: %d\r\n", group, endPoint);
+                device_settings.scene[idx].groupId = group;
                 save = true;
             }
         }
@@ -283,7 +300,7 @@ static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgRepo
         }
     }
 
-    app_setPollRate(TIMEOUT_20SEC);
+    app_setPollRate(TIMEOUT_30SEC);
 }
 
 /*********************************************************************
@@ -596,7 +613,7 @@ status_t app_groupCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdP
 }
 #endif	/* ZCL_GROUP */
 
-#ifdef ZCL_SCENE
+#ifdef ZCL_SCENE1
 /*********************************************************************
  * @fn      app_zclAddSceneRspCmdHandler
  *
@@ -682,6 +699,7 @@ static void app_zclGetSceneMembershipRspCmdHandler(getSceneMemRsp_t *pGetSceneMe
 {
 
 }
+#endif  /* ZCL_SCENE */
 
 /*********************************************************************
  * @fn      app_sceneCb
@@ -694,40 +712,39 @@ static void app_zclGetSceneMembershipRspCmdHandler(getSceneMemRsp_t *pGetSceneMe
  *
  * @return  status_t
  */
-status_t app_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
-{
-	if(pAddrInfo->dstEp == APP_ENDPOINT){
-		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
-			switch(cmdId){
-				case ZCL_CMD_SCENE_ADD_SCENE_RSP:
-				case ZCL_CMD_SCENE_ENHANCED_ADD_SCENE_RSP:
-					app_zclAddSceneRspCmdHandler(cmdId, (addSceneRsp_t *)cmdPayload);
-					break;
-				case ZCL_CMD_SCENE_VIEW_SCENE_RSP:
-				case ZCL_CMD_SCENE_ENHANCED_VIEW_SCENE_RSP:
-					app_zclViewSceneRspCmdHandler(cmdId, (viewSceneRsp_t *)cmdPayload);
-					break;
-				case ZCL_CMD_SCENE_REMOVE_SCENE_RSP:
-					app_zclRemoveSceneRspCmdHandler((removeSceneRsp_t *)cmdPayload);
-					break;
-				case ZCL_CMD_SCENE_REMOVE_ALL_SCENE_RSP:
-					app_zclRemoveAllSceneRspCmdHandler((removeAllSceneRsp_t *)cmdPayload);
-					break;
-				case ZCL_CMD_SCENE_STORE_SCENE_RSP:
-					app_zclStoreSceneRspCmdHandler((storeSceneRsp_t *)cmdPayload);
-					break;
-				case ZCL_CMD_SCENE_GET_SCENE_MEMSHIP_RSP:
-					app_zclGetSceneMembershipRspCmdHandler((getSceneMemRsp_t *)cmdPayload);
-					break;
-				default:
-					break;
-			}
-		}
-	}
+status_t app_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
+
+    printf("app_sceneCb\r\n");
+
+//    if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
+//        switch(cmdId){
+//            case ZCL_CMD_SCENE_ADD_SCENE_RSP:
+//            case ZCL_CMD_SCENE_ENHANCED_ADD_SCENE_RSP:
+//                app_zclAddSceneRspCmdHandler(cmdId, (addSceneRsp_t *)cmdPayload);
+//                break;
+//            case ZCL_CMD_SCENE_VIEW_SCENE_RSP:
+//            case ZCL_CMD_SCENE_ENHANCED_VIEW_SCENE_RSP:
+//                app_zclViewSceneRspCmdHandler(cmdId, (viewSceneRsp_t *)cmdPayload);
+//                break;
+//            case ZCL_CMD_SCENE_REMOVE_SCENE_RSP:
+//                app_zclRemoveSceneRspCmdHandler((removeSceneRsp_t *)cmdPayload);
+//                break;
+//            case ZCL_CMD_SCENE_REMOVE_ALL_SCENE_RSP:
+//                app_zclRemoveAllSceneRspCmdHandler((removeAllSceneRsp_t *)cmdPayload);
+//                break;
+//            case ZCL_CMD_SCENE_STORE_SCENE_RSP:
+//                app_zclStoreSceneRspCmdHandler((storeSceneRsp_t *)cmdPayload);
+//                break;
+//            case ZCL_CMD_SCENE_GET_SCENE_MEMSHIP_RSP:
+//                app_zclGetSceneMembershipRspCmdHandler((getSceneMemRsp_t *)cmdPayload);
+//                break;
+//            default:
+//                break;
+//        }
+//    }
 
 	return ZCL_STA_SUCCESS;
 }
-#endif	/* ZCL_SCENE */
 
 #ifdef ZCL_POLL_CTRL
 static ev_timer_event_t *zclFastPollTimeoutTimerEvt = NULL;

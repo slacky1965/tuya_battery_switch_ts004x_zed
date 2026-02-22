@@ -43,8 +43,6 @@
 #define TIMEOUT_4HOUR      14400 * 1000     /* timeout 4 hour   */
 #define TIMEOUT_8HOUR      28800 * 1000     /* timeout 8 hour   */
 
-extern bool factory_reset;
-
 void start_message();
 int32_t poll_rateAppCb(void *arg);
 int32_t delayedMcuResetCb(void *arg);

@@ -49,9 +49,7 @@ const uint16_t app_ep1_inClusterList[] =
 const uint16_t app_ep1_outClusterList[] =
 {
     ZCL_CLUSTER_GEN_GROUPS,
-#ifdef ZCL_SCENE
     ZCL_CLUSTER_GEN_SCENES,
-#endif
     ZCL_CLUSTER_OTA,
 #ifdef ZCL_ZLL_COMMISSIONING
     ZCL_CLUSTER_TOUCHLINK_COMMISSIONING,
@@ -76,9 +74,7 @@ const uint16_t app_ep2_inClusterList[] =
 const uint16_t app_ep2_outClusterList[] =
 {
     ZCL_CLUSTER_GEN_GROUPS,
-#ifdef ZCL_SCENE
     ZCL_CLUSTER_GEN_SCENES,
-#endif
     ZCL_CLUSTER_GEN_ON_OFF,
     ZCL_CLUSTER_GEN_LEVEL_CONTROL,
 };
@@ -99,9 +95,7 @@ const uint16_t app_ep3_inClusterList[] =
 const uint16_t app_ep3_outClusterList[] =
 {
     ZCL_CLUSTER_GEN_GROUPS,
-#ifdef ZCL_SCENE
     ZCL_CLUSTER_GEN_SCENES,
-#endif
     ZCL_CLUSTER_GEN_ON_OFF,
     ZCL_CLUSTER_GEN_LEVEL_CONTROL,
 };
@@ -122,9 +116,7 @@ const uint16_t app_ep4_inClusterList[] =
 const uint16_t app_ep4_outClusterList[] =
 {
     ZCL_CLUSTER_GEN_GROUPS,
-#ifdef ZCL_SCENE
     ZCL_CLUSTER_GEN_SCENES,
-#endif
     ZCL_CLUSTER_GEN_ON_OFF,
     ZCL_CLUSTER_GEN_LEVEL_CONTROL,
 };
@@ -145,9 +137,7 @@ const uint16_t app_ep5_inClusterList[] =
 const uint16_t app_ep5_outClusterList[] =
 {
     ZCL_CLUSTER_GEN_GROUPS,
-#ifdef ZCL_SCENE
     ZCL_CLUSTER_GEN_SCENES,
-#endif
     ZCL_CLUSTER_GEN_ON_OFF,
     ZCL_CLUSTER_GEN_LEVEL_CONTROL,
 };
@@ -168,9 +158,7 @@ const uint16_t app_ep6_inClusterList[] =
 const uint16_t app_ep6_outClusterList[] =
 {
     ZCL_CLUSTER_GEN_GROUPS,
-#ifdef ZCL_SCENE
     ZCL_CLUSTER_GEN_SCENES,
-#endif
     ZCL_CLUSTER_GEN_ON_OFF,
     ZCL_CLUSTER_GEN_LEVEL_CONTROL,
 };
@@ -320,13 +308,11 @@ const zclAttrInfo_t identify_attrTbl[] =
 /* power */
 zcl_powerAttr_t g_zcl_powerAttrs =
 {
-    .batteryVoltage    = 30,   //in 100 mV units, 0xff - unknown
     .batteryPercentage = 0x64, //in 0,5% units, 0xff - unknown
 };
 
 const zclAttrInfo_t powerCfg_attrTbl[] =
 {
-    { ZCL_ATTRID_BATTERY_VOLTAGE,               ZCL_UINT8,  RR, (uint8_t*)&g_zcl_powerAttrs.batteryVoltage},
     { ZCL_ATTRID_BATTERY_PERCENTAGE_REMAINING,  ZCL_UINT8,  RR, (uint8_t*)&g_zcl_powerAttrs.batteryPercentage},
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,       ZCL_UINT16, R,  (uint8_t*)&zcl_attr_global_clusterRevision},
@@ -478,6 +464,8 @@ zcl_sceneAttr_t g_zcl_sceneAttrs[DEVICE_BUTTON_MAX] =
         .currentGroup   = 0x0000,
         .sceneValid     = FALSE,
         .nameSupport    = 0,
+        .customScene    = 0,
+        .customGroup    = 0,
     },
 };
 
@@ -487,11 +475,83 @@ const zclAttrInfo_t scene1_attrTbl[] = {
     { ZCL_ATTRID_SCENE_CURRENT_GROUP,       ZCL_UINT16,   R,  (uint8_t*)&g_zcl_sceneAttrs[0].currentGroup   },
     { ZCL_ATTRID_SCENE_SCENE_VALID,         ZCL_BOOLEAN,  R,  (uint8_t*)&g_zcl_sceneAttrs[0].sceneValid     },
     { ZCL_ATTRID_SCENE_NAME_SUPPORT,        ZCL_BITMAP8,  R,  (uint8_t*)&g_zcl_sceneAttrs[0].nameSupport    },
+    { ZCL_CUSTOM_ATTRID_SCENE_SCENE_ID,     ZCL_UINT8,    RW, (uint8_t*)&g_zcl_sceneAttrs[0].customScene    },
+    { ZCL_CUSTOM_ATTRID_SCENE_GROUP_ID,     ZCL_UINT16,   RW, (uint8_t*)&g_zcl_sceneAttrs[0].customGroup    },
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,   R,  (uint8_t*)&zcl_attr_global_clusterRevision},
 };
 
 #define ZCL_SCENE1_ATTR_NUM   sizeof(scene1_attrTbl) / sizeof(zclAttrInfo_t)
+
+const zclAttrInfo_t scene2_attrTbl[] = {
+    { ZCL_ATTRID_SCENE_SCENE_COUNT,         ZCL_UINT8,    R,  (uint8_t*)&g_zcl_sceneAttrs[1].sceneCount     },
+    { ZCL_ATTRID_SCENE_CURRENT_SCENE,       ZCL_UINT8,    R,  (uint8_t*)&g_zcl_sceneAttrs[1].currentScene   },
+    { ZCL_ATTRID_SCENE_CURRENT_GROUP,       ZCL_UINT16,   R,  (uint8_t*)&g_zcl_sceneAttrs[1].currentGroup   },
+    { ZCL_ATTRID_SCENE_SCENE_VALID,         ZCL_BOOLEAN,  R,  (uint8_t*)&g_zcl_sceneAttrs[1].sceneValid     },
+    { ZCL_ATTRID_SCENE_NAME_SUPPORT,        ZCL_BITMAP8,  R,  (uint8_t*)&g_zcl_sceneAttrs[1].nameSupport    },
+    { ZCL_CUSTOM_ATTRID_SCENE_SCENE_ID,     ZCL_UINT8,    RW, (uint8_t*)&g_zcl_sceneAttrs[1].customScene    },
+    { ZCL_CUSTOM_ATTRID_SCENE_GROUP_ID,     ZCL_UINT16,   RW, (uint8_t*)&g_zcl_sceneAttrs[1].customGroup    },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,   R,  (uint8_t*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_SCENE2_ATTR_NUM   sizeof(scene2_attrTbl) / sizeof(zclAttrInfo_t)
+
+const zclAttrInfo_t scene3_attrTbl[] = {
+    { ZCL_ATTRID_SCENE_SCENE_COUNT,         ZCL_UINT8,    R,  (uint8_t*)&g_zcl_sceneAttrs[2].sceneCount     },
+    { ZCL_ATTRID_SCENE_CURRENT_SCENE,       ZCL_UINT8,    R,  (uint8_t*)&g_zcl_sceneAttrs[2].currentScene   },
+    { ZCL_ATTRID_SCENE_CURRENT_GROUP,       ZCL_UINT16,   R,  (uint8_t*)&g_zcl_sceneAttrs[2].currentGroup   },
+    { ZCL_ATTRID_SCENE_SCENE_VALID,         ZCL_BOOLEAN,  R,  (uint8_t*)&g_zcl_sceneAttrs[2].sceneValid     },
+    { ZCL_ATTRID_SCENE_NAME_SUPPORT,        ZCL_BITMAP8,  R,  (uint8_t*)&g_zcl_sceneAttrs[2].nameSupport    },
+    { ZCL_CUSTOM_ATTRID_SCENE_SCENE_ID,     ZCL_UINT8,    RW, (uint8_t*)&g_zcl_sceneAttrs[2].customScene    },
+    { ZCL_CUSTOM_ATTRID_SCENE_GROUP_ID,     ZCL_UINT16,   RW, (uint8_t*)&g_zcl_sceneAttrs[2].customGroup    },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,   R,  (uint8_t*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_SCENE3_ATTR_NUM   sizeof(scene3_attrTbl) / sizeof(zclAttrInfo_t)
+
+const zclAttrInfo_t scene4_attrTbl[] = {
+    { ZCL_ATTRID_SCENE_SCENE_COUNT,         ZCL_UINT8,    R,  (uint8_t*)&g_zcl_sceneAttrs[3].sceneCount     },
+    { ZCL_ATTRID_SCENE_CURRENT_SCENE,       ZCL_UINT8,    R,  (uint8_t*)&g_zcl_sceneAttrs[3].currentScene   },
+    { ZCL_ATTRID_SCENE_CURRENT_GROUP,       ZCL_UINT16,   R,  (uint8_t*)&g_zcl_sceneAttrs[3].currentGroup   },
+    { ZCL_ATTRID_SCENE_SCENE_VALID,         ZCL_BOOLEAN,  R,  (uint8_t*)&g_zcl_sceneAttrs[3].sceneValid     },
+    { ZCL_ATTRID_SCENE_NAME_SUPPORT,        ZCL_BITMAP8,  R,  (uint8_t*)&g_zcl_sceneAttrs[3].nameSupport    },
+    { ZCL_CUSTOM_ATTRID_SCENE_SCENE_ID,     ZCL_UINT8,    RW, (uint8_t*)&g_zcl_sceneAttrs[3].customScene    },
+    { ZCL_CUSTOM_ATTRID_SCENE_GROUP_ID,     ZCL_UINT16,   RW, (uint8_t*)&g_zcl_sceneAttrs[3].customGroup    },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,   R,  (uint8_t*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_SCENE4_ATTR_NUM   sizeof(scene4_attrTbl) / sizeof(zclAttrInfo_t)
+
+const zclAttrInfo_t scene5_attrTbl[] = {
+    { ZCL_ATTRID_SCENE_SCENE_COUNT,         ZCL_UINT8,    R,  (uint8_t*)&g_zcl_sceneAttrs[4].sceneCount     },
+    { ZCL_ATTRID_SCENE_CURRENT_SCENE,       ZCL_UINT8,    R,  (uint8_t*)&g_zcl_sceneAttrs[4].currentScene   },
+    { ZCL_ATTRID_SCENE_CURRENT_GROUP,       ZCL_UINT16,   R,  (uint8_t*)&g_zcl_sceneAttrs[4].currentGroup   },
+    { ZCL_ATTRID_SCENE_SCENE_VALID,         ZCL_BOOLEAN,  R,  (uint8_t*)&g_zcl_sceneAttrs[4].sceneValid     },
+    { ZCL_ATTRID_SCENE_NAME_SUPPORT,        ZCL_BITMAP8,  R,  (uint8_t*)&g_zcl_sceneAttrs[4].nameSupport    },
+    { ZCL_CUSTOM_ATTRID_SCENE_SCENE_ID,     ZCL_UINT8,    RW, (uint8_t*)&g_zcl_sceneAttrs[4].customScene    },
+    { ZCL_CUSTOM_ATTRID_SCENE_GROUP_ID,     ZCL_UINT16,   RW, (uint8_t*)&g_zcl_sceneAttrs[4].customGroup    },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,   R,  (uint8_t*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_SCENE5_ATTR_NUM   sizeof(scene5_attrTbl) / sizeof(zclAttrInfo_t)
+
+const zclAttrInfo_t scene6_attrTbl[] = {
+    { ZCL_ATTRID_SCENE_SCENE_COUNT,         ZCL_UINT8,    R,  (uint8_t*)&g_zcl_sceneAttrs[5].sceneCount     },
+    { ZCL_ATTRID_SCENE_CURRENT_SCENE,       ZCL_UINT8,    R,  (uint8_t*)&g_zcl_sceneAttrs[5].currentScene   },
+    { ZCL_ATTRID_SCENE_CURRENT_GROUP,       ZCL_UINT16,   R,  (uint8_t*)&g_zcl_sceneAttrs[5].currentGroup   },
+    { ZCL_ATTRID_SCENE_SCENE_VALID,         ZCL_BOOLEAN,  R,  (uint8_t*)&g_zcl_sceneAttrs[5].sceneValid     },
+    { ZCL_ATTRID_SCENE_NAME_SUPPORT,        ZCL_BITMAP8,  R,  (uint8_t*)&g_zcl_sceneAttrs[5].nameSupport    },
+    { ZCL_CUSTOM_ATTRID_SCENE_SCENE_ID,     ZCL_UINT8,    RW, (uint8_t*)&g_zcl_sceneAttrs[5].customScene    },
+    { ZCL_CUSTOM_ATTRID_SCENE_GROUP_ID,     ZCL_UINT16,   RW, (uint8_t*)&g_zcl_sceneAttrs[5].customGroup    },
+
+    { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,   R,  (uint8_t*)&zcl_attr_global_clusterRevision},
+};
+
+#define ZCL_SCENE6_ATTR_NUM   sizeof(scene6_attrTbl) / sizeof(zclAttrInfo_t)
 
 #endif
 
@@ -736,7 +796,7 @@ const zcl_specClusterInfo_t g_appEp1ClusterList[] = {
     {ZCL_CLUSTER_GEN_IDENTIFY,              MANUFACTURER_CODE_NONE, ZCL_IDENTIFY_ATTR_NUM,      identify_attrTbl,   zcl_identify_register,          app_identifyCb  },
     {ZCL_CLUSTER_GEN_POWER_CFG,             MANUFACTURER_CODE_NONE, ZCL_POWER_CFG_ATTR_NUM,     powerCfg_attrTbl,   zcl_powerCfg_register,          app_powerCfgCb  },
     {ZCL_CLUSTER_GEN_GROUPS,                MANUFACTURER_CODE_NONE, 0,                          NULL,               zcl_group_register,             app_groupCb     },
-//    {ZCL_CLUSTER_GEN_GROUPS,                 MANUFACTURER_CODE_NONE, ZCL_GROUP_ATTR_NUM,        group_attrTbl,      zcl_group_register,             app_groupCb     },
+    {ZCL_CLUSTER_GEN_SCENES,                MANUFACTURER_CODE_NONE, ZCL_SCENE1_ATTR_NUM,        scene1_attrTbl,     zcl_scene_register,             app_sceneCb     },
     {ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG,  MANUFACTURER_CODE_NONE, ZCL_ON_OFF_CFG1_ATTR_NUM,   onOffCfg1_attrTbl,  zcl_onOffSwitchCfg_register,    NULL            },
     {ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC,MANUFACTURER_CODE_NONE, ZCL_MSINPUT1_ATTR_NUM,      msInput1_attrTbl,   zcl_multistate_input_register,  app_msInputCb   },
     {ZCL_CLUSTER_GEN_LEVEL_CONTROL,         MANUFACTURER_CODE_NONE, ZCL_LEVEL1_ATTR_NUM,        level1_attrTbl,     zcl_level_register,             app_levelCb     },
@@ -746,6 +806,7 @@ uint8_t APP_EP1_CB_CLUSTER_NUM = (sizeof(g_appEp1ClusterList)/sizeof(g_appEp1Clu
 
 const zcl_specClusterInfo_t g_appEp2ClusterList[] = {
     {ZCL_CLUSTER_GEN_GROUPS,                MANUFACTURER_CODE_NONE, 0,                        NULL,              zcl_group_register,            app_groupCb     },
+    {ZCL_CLUSTER_GEN_SCENES,                MANUFACTURER_CODE_NONE, ZCL_SCENE2_ATTR_NUM,      scene2_attrTbl,    zcl_scene_register,            app_sceneCb     },
     {ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG,  MANUFACTURER_CODE_NONE, ZCL_ON_OFF_CFG2_ATTR_NUM, onOffCfg2_attrTbl, zcl_onOffSwitchCfg_register,   NULL            },
     {ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC,MANUFACTURER_CODE_NONE, ZCL_MSINPUT2_ATTR_NUM,    msInput2_attrTbl,  zcl_multistate_input_register, app_msInputCb   },
     {ZCL_CLUSTER_GEN_LEVEL_CONTROL,         MANUFACTURER_CODE_NONE, ZCL_LEVEL2_ATTR_NUM,      level2_attrTbl,    zcl_level_register,            app_levelCb     },
@@ -755,6 +816,7 @@ uint8_t APP_EP2_CB_CLUSTER_NUM = (sizeof(g_appEp2ClusterList)/sizeof(g_appEp2Clu
 
 const zcl_specClusterInfo_t g_appEp3ClusterList[] = {
     {ZCL_CLUSTER_GEN_GROUPS,                MANUFACTURER_CODE_NONE, 0,                        NULL,              zcl_group_register,            app_groupCb     },
+    {ZCL_CLUSTER_GEN_SCENES,                MANUFACTURER_CODE_NONE, ZCL_SCENE3_ATTR_NUM,      scene3_attrTbl,    zcl_scene_register,            app_sceneCb     },
     {ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG,  MANUFACTURER_CODE_NONE, ZCL_ON_OFF_CFG3_ATTR_NUM, onOffCfg3_attrTbl, zcl_onOffSwitchCfg_register,   NULL            },
     {ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC,MANUFACTURER_CODE_NONE, ZCL_MSINPUT3_ATTR_NUM,    msInput3_attrTbl,  zcl_multistate_input_register, app_msInputCb   },
     {ZCL_CLUSTER_GEN_LEVEL_CONTROL,         MANUFACTURER_CODE_NONE, ZCL_LEVEL3_ATTR_NUM,      level3_attrTbl,    zcl_level_register,            app_levelCb     },
@@ -763,16 +825,18 @@ const zcl_specClusterInfo_t g_appEp3ClusterList[] = {
 uint8_t APP_EP3_CB_CLUSTER_NUM = (sizeof(g_appEp3ClusterList)/sizeof(g_appEp3ClusterList[0]));
 
 const zcl_specClusterInfo_t g_appEp4ClusterList[] = {
-    {ZCL_CLUSTER_GEN_GROUPS,                MANUFACTURER_CODE_NONE,  0,                        NULL,              zcl_group_register,            app_groupCb     },
-    {ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG,  MANUFACTURER_CODE_NONE,  ZCL_ON_OFF_CFG4_ATTR_NUM, onOffCfg4_attrTbl, zcl_onOffSwitchCfg_register,   NULL            },
-    {ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC,MANUFACTURER_CODE_NONE,  ZCL_MSINPUT4_ATTR_NUM,    msInput4_attrTbl,  zcl_multistate_input_register, app_msInputCb   },
-    {ZCL_CLUSTER_GEN_LEVEL_CONTROL,         MANUFACTURER_CODE_NONE,  ZCL_LEVEL4_ATTR_NUM,      level4_attrTbl,    zcl_level_register,            app_levelCb     },
+    {ZCL_CLUSTER_GEN_GROUPS,                MANUFACTURER_CODE_NONE, 0,                        NULL,              zcl_group_register,            app_groupCb     },
+    {ZCL_CLUSTER_GEN_SCENES,                MANUFACTURER_CODE_NONE, ZCL_SCENE4_ATTR_NUM,      scene4_attrTbl,    zcl_scene_register,            app_sceneCb     },
+    {ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG,  MANUFACTURER_CODE_NONE, ZCL_ON_OFF_CFG4_ATTR_NUM, onOffCfg4_attrTbl, zcl_onOffSwitchCfg_register,   NULL            },
+    {ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC,MANUFACTURER_CODE_NONE, ZCL_MSINPUT4_ATTR_NUM,    msInput4_attrTbl,  zcl_multistate_input_register, app_msInputCb   },
+    {ZCL_CLUSTER_GEN_LEVEL_CONTROL,         MANUFACTURER_CODE_NONE, ZCL_LEVEL4_ATTR_NUM,      level4_attrTbl,    zcl_level_register,            app_levelCb     },
 };
 
 uint8_t APP_EP4_CB_CLUSTER_NUM = (sizeof(g_appEp4ClusterList)/sizeof(g_appEp4ClusterList[0]));
 
 const zcl_specClusterInfo_t g_appEp5ClusterList[] = {
     {ZCL_CLUSTER_GEN_GROUPS,                MANUFACTURER_CODE_NONE, 0,                        NULL,              zcl_group_register,             app_groupCb     },
+    {ZCL_CLUSTER_GEN_SCENES,                MANUFACTURER_CODE_NONE, ZCL_SCENE5_ATTR_NUM,      scene5_attrTbl,    zcl_scene_register,            app_sceneCb     },
     {ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG,  MANUFACTURER_CODE_NONE, ZCL_ON_OFF_CFG5_ATTR_NUM, onOffCfg5_attrTbl, zcl_onOffSwitchCfg_register,    NULL            },
     {ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC,MANUFACTURER_CODE_NONE, ZCL_MSINPUT5_ATTR_NUM,    msInput5_attrTbl,  zcl_multistate_input_register,  app_msInputCb   },
     {ZCL_CLUSTER_GEN_LEVEL_CONTROL,         MANUFACTURER_CODE_NONE, ZCL_LEVEL5_ATTR_NUM,      level5_attrTbl,    zcl_level_register,             app_levelCb     },
@@ -782,6 +846,7 @@ uint8_t APP_EP5_CB_CLUSTER_NUM = (sizeof(g_appEp5ClusterList)/sizeof(g_appEp5Clu
 
 const zcl_specClusterInfo_t g_appEp6ClusterList[] = {
     {ZCL_CLUSTER_GEN_GROUPS,                MANUFACTURER_CODE_NONE, 0,                        NULL,              zcl_group_register,            app_groupCb     },
+    {ZCL_CLUSTER_GEN_SCENES,                MANUFACTURER_CODE_NONE, ZCL_SCENE6_ATTR_NUM,      scene6_attrTbl,    zcl_scene_register,            app_sceneCb     },
     {ZCL_CLUSTER_GEN_ON_OFF_SWITCH_CONFIG,  MANUFACTURER_CODE_NONE, ZCL_ON_OFF_CFG6_ATTR_NUM, onOffCfg6_attrTbl, zcl_onOffSwitchCfg_register,   NULL            },
     {ZCL_CLUSTER_GEN_MULTISTATE_INPUT_BASIC,MANUFACTURER_CODE_NONE, ZCL_MSINPUT6_ATTR_NUM,    msInput6_attrTbl,  zcl_multistate_input_register, app_msInputCb   },
     {ZCL_CLUSTER_GEN_LEVEL_CONTROL,         MANUFACTURER_CODE_NONE, ZCL_LEVEL6_ATTR_NUM,      level6_attrTbl,    zcl_level_register,            app_levelCb     },

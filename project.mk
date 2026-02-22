@@ -15,6 +15,7 @@ $(OUT_PATH)/$(SRC_PATH)/app_button.o \
 $(OUT_PATH)/$(SRC_PATH)/app_led.o \
 $(OUT_PATH)/$(SRC_PATH)/app_on_off.o \
 $(OUT_PATH)/$(SRC_PATH)/app_level.o \
+$(OUT_PATH)/$(SRC_PATH)/app_scene.o \
 $(OUT_PATH)/$(SRC_PATH)/app_pm.o \
 $(OUT_PATH)/$(SRC_PATH)/app_battery.o \
 $(OUT_PATH)/$(SRC_PATH)/app_reporting.o \

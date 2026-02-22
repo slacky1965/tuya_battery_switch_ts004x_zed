@@ -69,6 +69,8 @@ nv_sts_t device_settings_default() {
         device_settings.switchActions[i] = ZCL_SWITCH_ACTION_TOGGLE;
         device_settings.switchType[i] = ZCL_SWITCH_TYPE_TOGGLE;
         device_settings.defaultMoveRate[i] = DEFAULT_MOVE_RATE;
+        device_settings.scene[i].groupId = 0;
+        device_settings.scene[i].sceneId = 0;
     }
 
     device_settings.crc = checksum((uint8_t*)&device_settings, sizeof(device_settings_t)-1);
@@ -106,6 +108,8 @@ nv_sts_t device_settings_restore() {
             device_settings_tmp.switchActions[i] = ZCL_SWITCH_ACTION_TOGGLE;
             device_settings_tmp.switchType[i] = ZCL_SWITCH_TYPE_TOGGLE;
             device_settings_tmp.defaultMoveRate[i] = DEFAULT_MOVE_RATE;
+            device_settings_tmp.scene[i].groupId = 0;
+            device_settings_tmp.scene[i].sceneId = 0;
         }
     }
 
@@ -114,6 +118,8 @@ nv_sts_t device_settings_restore() {
         g_zcl_onOffCfgAttrs[i].custom_swtichType = device_settings.switchType[i];
         g_zcl_onOffCfgAttrs[i].switchActions = device_settings.switchActions[i];
         g_zcl_levelAttrs[i].defaultMoveRate = device_settings.defaultMoveRate[i];
+        g_zcl_sceneAttrs[i].customScene = device_settings.scene[i].sceneId;
+        g_zcl_sceneAttrs[i].customGroup = device_settings.scene[i].groupId;
     }
 
 #else
