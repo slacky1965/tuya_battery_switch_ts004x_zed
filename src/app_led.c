@@ -5,21 +5,25 @@
 
 void led_on(uint32_t pin)
 {
+//    printf("LED is ON\r\n");
     drv_gpio_write(pin, LED_ON);
 }
 
 void led_off(uint32_t pin)
 {
+//    printf("LED is OFF\r\n");
     drv_gpio_write(pin, LED_OFF);
 }
 
 void light_on(void)
 {
+//    printf("light is ON\r\n");
     led_on(LED1);
 }
 
 void light_off(void)
 {
+//    printf("light is OFF\r\n");
     led_off(LED1);
 }
 
@@ -55,6 +59,7 @@ int32_t zclLightTimerCb(void *arg)
 
 void light_blink_start(uint8_t times, uint16_t ledOnTime, uint16_t ledOffTime)
 {
+//    printf("light_blink_start, times: %d, onTime: %d, offTime: %d\r\n", times, ledOnTime, ledOffTime);
     uint32_t interval = 0;
     g_appCtx.times = times;
 
@@ -71,12 +76,16 @@ void light_blink_start(uint8_t times, uint16_t ledOnTime, uint16_t ledOffTime)
         g_appCtx.ledOnTime = ledOnTime;
         g_appCtx.ledOffTime = ledOffTime;
 
+//        printf("timerLedEvt = NULL, interval: %d\r\n", interval);
+
         g_appCtx.timerLedEvt = TL_ZB_TIMER_SCHEDULE(zclLightTimerCb, NULL, interval);
     }
 }
 
 void light_blink_stop(void)
 {
+//    printf("light_blink_stop\r\n");
+
     if(g_appCtx.timerLedEvt){
         TL_ZB_TIMER_CANCEL(&g_appCtx.timerLedEvt);
 
