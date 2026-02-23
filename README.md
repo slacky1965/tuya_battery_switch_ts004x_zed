@@ -1,4 +1,4 @@
-# <a id="Top">LoraTop Wireless switch Zigbee with custom firmware</a>
+# <a id="Top">LoraTap Wireless switch Zigbee with custom firmware</a>
 
 <img src="doc/images/LoraTap_TS004x.jpg"/>
 
