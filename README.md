@@ -24,7 +24,7 @@
 | TS0041-z-SlD        | TS0041                | TS0041    | ---                         | OTA file      | [:camera:](doc/images/TS0041-z-SlD.png) |
 | TS0042-z-SlD        | TS0042                | TS0042    | ---                         | OTA file      | [:camera:](doc/images/TS0042-z-SlD.png) |
 | TS0043-z-SlD        | TS0043                | TS0043    | ---                         | OTA file      | [:camera:](doc/images/TS0043-z-SlD.png) |
-| TS0044-z-SlD        | TS0044                | [TS0043](https://www.zigbee2mqtt.io/devices/TS0043.html)    | _TZ3000_ee8nrt2l            | [OTA file](bin/1141-d3a3-1111114b-tuya_battery_switch_ts004x_zed_model_4.zigbee)      | [:camera:](doc/images/TS0044-z-SlD.png) |
+| TS0044-z-SlD        | TS0044                | [TS0043](https://www.zigbee2mqtt.io/devices/TS0043.html)    | _TZ3000_ee8nrt2l            | [OTA file](https://github.com/slacky1965/tuya_battery_switch_ts004x_zed/raw/refs/heads/main/bin/1141-d3a3-1111114b-tuya_battery_switch_ts004x_zed_model_4.zigbee)      | [:camera:](doc/images/TS0044-z-SlD.png) |
 
 
 Проверялся только в zigbee2mqtt. Требует всестороннего тестирования.
