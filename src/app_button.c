@@ -434,11 +434,22 @@ static void read_button_toggle(uint8_t i) {
                         app_cmdOnOff(i+1, cmd_onoff);
                     }
                 }
+                if (device_settings.switchType[i] == ZCL_SWITCH_TYPE_MOMENTARY) {
+                    g_appCtx.not_sleep = true;
+                }
             }
         }
     }
 
     if (button->released && clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
+        if (device_settings.switchType[i] == ZCL_SWITCH_TYPE_MOMENTARY) {
+            if (timerClearSleepEvt) {
+                TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
+            }
+            if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
+                timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
+            }
+        }
         button->counter = 0;
         button->pressed = false;
         button->released = false;
@@ -483,8 +494,13 @@ u8 button_idle() {
 
 void button_init() {
     app_button[0].gpio = BUTTON1_GPIO;
-    app_button[1].gpio = BUTTON2_GPIO;
-    app_button[2].gpio = BUTTON3_GPIO;
+    if (device_button_model == DEVICE_BUTTON_2) {
+        app_button[2].gpio = BUTTON2_GPIO;
+        app_button[1].gpio = BUTTON3_GPIO;
+    } else {
+        app_button[1].gpio = BUTTON2_GPIO;
+        app_button[2].gpio = BUTTON3_GPIO;
+    }
     app_button[3].gpio = BUTTON4_GPIO;
 //    app_button[4].gpio = BUTTON1_GPIO;
 //    app_button[5].gpio = BUTTON1_GPIO;
