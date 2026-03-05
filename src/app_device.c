@@ -40,7 +40,7 @@ static void device_model_init() {
             zb_modelId[6] = '1';
             break;
     }
-    memcpy(g_zcl_basicAttrs.modelId, zb_modelId, 9);
+    memcpy(g_zcl_basicAttrs.modelId, zb_modelId, 13);
     g_zcl_onOffCfgAttrs[0].device_model = device_button_model+1;
     button_init();
 }
