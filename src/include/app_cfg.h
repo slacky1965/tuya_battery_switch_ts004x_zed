@@ -65,7 +65,9 @@
 #include "version_cfg.h"
 
 /* Debug mode config */
-#define	UART_PRINTF_MODE                OFF
+#ifndef UART_PRINTF_MODE
+#define	UART_PRINTF_MODE                ON
+#endif
 #define USB_PRINTF_MODE         		OFF
 
 #define DEBUG_BUTTON_EN                 ON
@@ -137,7 +139,7 @@
 #endif
 
 /* Watch dog module */
-#define MODULE_WATCHDOG_ENABLE						OFF
+#define MODULE_WATCHDOG_ENABLE						ON
 
 /* UART module */
 #define	MODULE_UART_ENABLE							OFF
