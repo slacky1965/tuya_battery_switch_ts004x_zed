@@ -417,6 +417,7 @@ static void read_button_toggle(uint8_t i) {
                 DEBUG(DEBUG_BUTTON_EN, "Key %d released toggle\r\n", i+1);
                 if(button->counter == 1 && zb_isDeviceJoinedNwk()) {
                     if (device_settings.switchType[i] == ZCL_SWITCH_TYPE_MOMENTARY) {
+                        g_appCtx.not_sleep = true;
                         cmd_onoff = ZCL_SWITCH_ACTION_ON_OFF;
                         switch(device_settings.switchActions[i]) {
                             case ZCL_SWITCH_ACTION_OFF_ON:
@@ -433,9 +434,6 @@ static void read_button_toggle(uint8_t i) {
                         }
                         app_cmdOnOff(i+1, cmd_onoff);
                     }
-                }
-                if (device_settings.switchType[i] == ZCL_SWITCH_TYPE_MOMENTARY) {
-                    g_appCtx.not_sleep = true;
                 }
             }
         }
