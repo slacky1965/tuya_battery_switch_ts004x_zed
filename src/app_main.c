@@ -212,7 +212,7 @@ static void appSysException(void) {
  */
 void user_init(bool isRetention) {
 
-    device_init();
+//    device_init();
 
     /* Initialize LEDs*/
     light_init();
@@ -230,6 +230,8 @@ void user_init(bool isRetention) {
 #endif
 
     if(!isRetention) {
+
+        device_model_restore();
 
         start_message();
 
