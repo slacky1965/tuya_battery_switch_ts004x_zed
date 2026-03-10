@@ -27,57 +27,48 @@
 #define PA0_INPUT_ENABLE        ON
 #define PA0_OUTPUT_ENABLE       OFF
 #define PA0_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PA0     PM_PIN_PULLUP_10K
+#define PULL_WAKEUP_SRC_PA0     PM_PIN_PULLUP_1M
 
 #define BUTTON2_GPIO            GPIO_PB5
 #define PB5_INPUT_ENABLE        ON
 #define PB5_OUTPUT_ENABLE       OFF
 #define PB5_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PB5     PM_PIN_PULLUP_10K
+#define PULL_WAKEUP_SRC_PB5     PM_PIN_PULLUP_1M
 
 #define BUTTON3_GPIO            GPIO_PC2
 #define PC2_INPUT_ENABLE        ON
 #define PC2_OUTPUT_ENABLE       OFF
 #define PC2_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PC2     PM_PIN_PULLUP_10K
+#define PULL_WAKEUP_SRC_PC2     PM_PIN_PULLUP_1M
 
 #define BUTTON4_GPIO            GPIO_PC3
 #define PC3_INPUT_ENABLE        ON
 #define PC3_OUTPUT_ENABLE       OFF
 #define PC3_FUNC                AS_GPIO
-#define PULL_WAKEUP_SRC_PC3     PM_PIN_PULLUP_10K
+#define PULL_WAKEUP_SRC_PC3     PM_PIN_PULLUP_1M
 
-//#define BUTTON5_GPIO            GPIO_PB4
-//#define PB4_INPUT_ENABLE        ON
-//#define PB4_OUTPUT_ENABLE       OFF
-//#define PB4_FUNC                AS_GPIO
-//#define PULL_WAKEUP_SRC_PA0     PM_PIN_PULLUP_10K
-//
-//#define BUTTON6_GPIO            GPIO_PB4
-//#define PB4_INPUT_ENABLE        ON
-//#define PB4_OUTPUT_ENABLE       OFF
-//#define PB4_FUNC                AS_GPIO
-//#define PULL_WAKEUP_SRC_PA0     PM_PIN_PULLUP_10K
+/* for 6 key's switch */
+/* key num 4 */
 
-enum{
-    VK_SW1 = 0x01,
-    VK_SW2 = 0x02,
-    VK_SW3 = 0x03,
-    VK_SW4 = 0x04,
-};
+#define BUTTON4_6_GPIO          GPIO_PC4
+#define PC4_INPUT_ENABLE        ON
+#define PC4_OUTPUT_ENABLE       OFF
+#define PC4_FUNC                AS_GPIO
+#define PULL_WAKEUP_SRC_PC4     PM_PIN_PULLUP_1M
 
-#define KB_MAP_NORMAL           { \
-                                    {VK_SW1,}, \
-                                    {VK_SW2,}, \
-                                    {VK_SW3,}, \
-                                    {VK_SW4,}, \
-                                }
+/* key num 5 */
+#define BUTTON5_GPIO            GPIO_PB4
+#define PB4_INPUT_ENABLE        ON
+#define PB4_OUTPUT_ENABLE       OFF
+#define PB4_FUNC                AS_GPIO
+#define PULL_WAKEUP_SRC_PB4     PM_PIN_PULLUP_1M
 
-#define KB_MAP_NUM              KB_MAP_NORMAL
-#define KB_MAP_FN               KB_MAP_NORMAL
-
-#define KB_DRIVE_PINS           {0}
-#define KB_SCAN_PINS            {BUTTON1_GPIO, BUTTON2_GPIO, BUTTON3_GPIO, BUTTON4_GPIO}
+/* key num 6 */
+#define BUTTON6_GPIO            GPIO_PC0
+#define PC0_INPUT_ENABLE        ON
+#define PC0_OUTPUT_ENABLE       OFF
+#define PC0_FUNC                AS_GPIO
+#define PULL_WAKEUP_SRC_PC0     PM_PIN_PULLUP_1M
 
 
 #endif /* SRC_COMMON_BOARD_TS004X_H_ */

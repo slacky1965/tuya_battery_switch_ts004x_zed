@@ -22,14 +22,18 @@ static drv_pm_pinCfg_t pin_PmCfg[] = {
         BUTTON4_GPIO,
         PM_WAKEUP_LEVEL_LOW
     },
-//    {
-//        BUTTON5_GPIO,
-//        PM_WAKEUP_LEVEL_LOW
-//    },
-//    {
-//        BUTTON6_GPIO,
-//        PM_WAKEUP_LEVEL_LOW
-//    },
+    {
+        BUTTON4_6_GPIO,
+        PM_WAKEUP_LEVEL_LOW
+    },
+    {
+        BUTTON5_GPIO,
+        PM_WAKEUP_LEVEL_LOW
+    },
+    {
+        BUTTON6_GPIO,
+        PM_WAKEUP_LEVEL_LOW
+    },
 };
 
 void app_wakeupPinConfig() {
