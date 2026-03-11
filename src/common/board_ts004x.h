@@ -4,6 +4,7 @@
 /**************************** Configure UART ***************************************/
 #if UART_PRINTF_MODE
 #define DEBUG_INFO_TX_PIN       GPIO_PB1
+#define PB1_DATA_OUT            ON
 #define DEBUG_BAUDRATE          115200
 #endif /* UART_PRINTF_MODE */
 
