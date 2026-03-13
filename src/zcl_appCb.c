@@ -87,7 +87,7 @@ static ev_timer_event_t *identifyTimerEvt = NULL;
  */
 void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 {
-	//printf("app_zclProcessIncomingMsg\n");
+//	printf("app_zclProcessIncomingMsg\r\n");
 
 	uint16_t cluster = pInHdlrMsg->msg->indInfo.cluster_id;
 	uint8_t endPoint = pInHdlrMsg->msg->indInfo.dst_ep;
@@ -118,6 +118,7 @@ void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 			break;
 #endif
 		case ZCL_CMD_DEFAULT_RSP:
+		    APP_DEBUG(DEBUG_ZCL_CB_EN, "def_rsp src_addr_mode: %d, src_addr: 0x%04x\r\n", pInHdlrMsg->msg->indInfo.src_addr_mode, pInHdlrMsg->msg->indInfo.src_short_addr);
 			app_zclDfltRspCmd(cluster, pInHdlrMsg->attrCmd);
 			break;
 		default:

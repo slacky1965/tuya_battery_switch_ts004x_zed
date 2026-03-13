@@ -410,6 +410,10 @@ static void read_button_toggle(uint8_t i) {
                     } else if (!zb_isDeviceFactoryNew()) {
                         zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
                     }
+#if DEBUG_BUTTON_EN
+                    if (i == 5) {
+                    }
+#endif
                 } else if (button->pressed && !clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
                     button->counter++;
                     if (button->counter >= FR_COUNTER_MAX) {

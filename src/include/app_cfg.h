@@ -73,12 +73,14 @@
 #define DEBUG_BUTTON_EN                 ON
 #define DEBUG_SAVE_EN                   OFF
 #define DEBUG_REPORTING_EN              ON
+#define DEBUG_BINDING_EN                ON
 #define DEBUG_BATTERY_EN                OFF
-#define DEBUG_PM_EN                     ON
+#define DEBUG_PM_EN                     OFF
 #define DEBUG_OTA_EN                    ON
 #define DEBUG_ONOFF_EN                  OFF
 #define DEBUG_LEVEL_EN                  OFF
 #define DEBUG_SCENE_EN                  ON
+#define DEBUG_ZCL_CB_EN                 ON
 
 /* PM */
 #define PM_ENABLE						ON

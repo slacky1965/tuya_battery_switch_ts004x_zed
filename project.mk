@@ -2,12 +2,14 @@
 OUT_DIR += \
 /$(SRC_PATH) \
 /$(SRC_PATH)/zcl \
+/$(SRC_PATH)/zdo \
 /$(SRC_PATH)/common
  
 OBJS += \
 $(OUT_PATH)/$(SRC_PATH)/common/main.o \
 $(OUT_PATH)/$(SRC_PATH)/common/flash.o \
 $(OUT_PATH)/$(SRC_PATH)/common/factory_reset.o \
+$(OUT_PATH)/$(SRC_PATH)/zdo/zdp.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl/zcl_onoffSwitchCfg.o \
 $(OUT_PATH)/$(SRC_PATH)/zcl/zcl_reporting.o \
 $(OUT_PATH)/$(SRC_PATH)/app_device.o \
@@ -19,6 +21,7 @@ $(OUT_PATH)/$(SRC_PATH)/app_scene.o \
 $(OUT_PATH)/$(SRC_PATH)/app_pm.o \
 $(OUT_PATH)/$(SRC_PATH)/app_battery.o \
 $(OUT_PATH)/$(SRC_PATH)/app_reporting.o \
+$(OUT_PATH)/$(SRC_PATH)/app_binding.o \
 $(OUT_PATH)/$(SRC_PATH)/app_endpoint_cfg.o \
 $(OUT_PATH)/$(SRC_PATH)/app_utility.o \
 $(OUT_PATH)/$(SRC_PATH)/app_main.o \

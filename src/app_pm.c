@@ -45,6 +45,7 @@ void app_wakeupPinLevelChange() {
     drv_pm_wakeupPinLevelChange(pin_PmCfg, 1);
 }
 
+#if DEBUG_PM_EN
 static void app_drv_pm_lowPowerEnter(void) {
 #if PM_ENABLE
     drv_pm_wakeup_src_e wakeupSrc = PM_WAKEUP_SRC_PAD;
@@ -102,6 +103,7 @@ static void app_drv_pm_lowPowerEnter(void) {
     drv_restore_irq(r);
 #endif
 }
+#endif
 
 void app_lowPowerEnter() {
 
@@ -132,7 +134,7 @@ void app_lowPowerEnter() {
 
         durationMs = g_appCtx.timerBatteryEvt->timeout /*TIME_LONG_DEEP_SLEEP * 1000*/;
 
-        DEBUG(DEBUG_PM_EN, "Long deep sleep start with time: %d sec\r\n", durationMs / 1000);
+        DEBUG(1/*DEBUG_PM_EN*/, "Long deep sleep start with time: %d sec\r\n", durationMs / 1000);
 
         drv_pm_longSleep(PM_SLEEP_MODE_DEEP_WITH_RETENTION, PM_WAKEUP_SRC_PAD | PM_WAKEUP_SRC_TIMER, durationMs);
 

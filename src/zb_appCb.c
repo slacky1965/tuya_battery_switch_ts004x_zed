@@ -147,6 +147,12 @@ void zb_bdbInitCb(u8 status, u8 joinedNetwork)
 #ifdef ZCL_POLL_CTRL
             app_zclCheckInStart();
 #endif
+
+            if (g_app_bind_tbl->timerGetIeeeCoordinatorEvt) {
+                TL_ZB_TIMER_CANCEL(&g_app_bind_tbl->timerGetIeeeCoordinatorEvt);
+            }
+            g_app_bind_tbl->timerGetIeeeCoordinatorEvt = TL_ZB_TIMER_SCHEDULE(app_getIeeeCoordinatorCb, NULL, TIMEOUT_2SEC);
+
         } else if (g_appCtx.net_steer_start) {
             u16 jitter = 0;
             do {
@@ -202,6 +208,12 @@ void zb_bdbCommissioningCb(u8 status, void *arg)
         if (!zb_isDeviceJoinedNwk()) {
             zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
         }
+
+        if (g_app_bind_tbl->timerGetIeeeCoordinatorEvt) {
+            TL_ZB_TIMER_CANCEL(&g_app_bind_tbl->timerGetIeeeCoordinatorEvt);
+        }
+        g_app_bind_tbl->timerGetIeeeCoordinatorEvt = TL_ZB_TIMER_SCHEDULE(app_getIeeeCoordinatorCb, NULL, TIMEOUT_2SEC);
+
 
 #ifdef ZCL_POLL_CTRL
         app_zclCheckInStart();
