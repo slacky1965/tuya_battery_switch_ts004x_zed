@@ -25,6 +25,7 @@
 | TS0042-z-SlD | TS0042 | [TS0042](https://www.zigbee2mqtt.io/devices/TS0042.html) | _TZ3000_fkvaniuu | [OTA file](https://github.com/slacky1965/tuya_battery_switch_ts004x_zed/raw/refs/heads/main/bin/1141-d3a3-1111114b-tuya_battery_switch_ts004x_zed_model_2.zigbee) | [:camera:](doc/TS0042.md) |
 | TS0043-z-SlD | TS0043 | [TS0043](https://www.zigbee2mqtt.io/devices/TS0043.html) | _TZ3000_famkxci2 | [OTA file](https://github.com/slacky1965/tuya_battery_switch_ts004x_zed/raw/refs/heads/main/bin/1141-d3a3-1111114b-tuya_battery_switch_ts004x_zed_model_3.zigbee) | [:camera:](doc/TS0043.md) |
 | TS0044-z-SlD | TS0044 | [TS0043](https://www.zigbee2mqtt.io/devices/TS0043.html) | _TZ3000_ee8nrt2l | [OTA file](https://github.com/slacky1965/tuya_battery_switch_ts004x_zed/raw/refs/heads/main/bin/1141-d3a3-1111114b-tuya_battery_switch_ts004x_zed_model_4.zigbee) | [:camera:](doc/TS0044.md) |
+| TS0046-z-SlD | TS0046 | [TS0046](https://www.zigbee2mqtt.io/devices/TS0046.html) | _TZ3000_iszegwpd | [OTA file](https://github.com/slacky1965/tuya_battery_switch_ts004x_zed/raw/refs/heads/main/bin/1141-d3a3-1111114b-tuya_battery_switch_ts004x_zed_model_6.zigbee) | [:camera:](doc/TS0046.md) |
 
 
 Проверялся только в zigbee2mqtt. Требует всестороннего тестирования.
