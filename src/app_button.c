@@ -109,7 +109,7 @@ static void read_button_level(uint8_t i) {
                 g_appCtx.not_sleep = true;
 //                APP_DEBUG(DEBUG_BUTTON_EN, "Key %d pressed level\r\n", i+1);
                 light_blink_start(1, 30, 1);
-                if (!clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
+                if (!clock_time_exceed(button->pressed_time, TIMEOUT_TICK_500MS)) {
                     button->counter++;
                 } else {
                     button->counter = 1;
@@ -130,7 +130,7 @@ static void read_button_level(uint8_t i) {
         }
     }
 
-    if (button->released && clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
+    if (button->released && clock_time_exceed(button->pressed_time, TIMEOUT_TICK_500MS)) {
         if (button->counter >= FR_COUNTER_MAX) {
             APP_DEBUG(DEBUG_BUTTON_EN, "Reset Factory is ready from level\r\n");
             factory_reset = true;
@@ -209,7 +209,7 @@ static void read_button_multifunction(uint8_t i) {
                 g_appCtx.not_sleep = true;
 //                APP_DEBUG(DEBUG_BUTTON_EN, "Key %d pressed multifunction\r\n", i+1);
                 light_blink_start(1, 30, 1);
-                if (!clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
+                if (!clock_time_exceed(button->pressed_time, TIMEOUT_TICK_500MS)) {
                     button->counter++;
                 } else {
                     button->counter = 1;
@@ -230,7 +230,7 @@ static void read_button_multifunction(uint8_t i) {
         }
     }
 
-    if (button->released && clock_time_exceed(button->pressed_time, TIMEOUT_TICK_750MS)) {
+    if (button->released && clock_time_exceed(button->pressed_time, TIMEOUT_TICK_500MS)) {
         if (button->counter >= FR_COUNTER_MAX) {
             APP_DEBUG(DEBUG_BUTTON_EN, "Reset Factory is ready from multifunction\r\n");
             factory_reset = true;
