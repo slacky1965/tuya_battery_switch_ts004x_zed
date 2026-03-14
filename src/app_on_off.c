@@ -35,9 +35,12 @@ void app_cmdOnOff(uint8_t ep, uint8_t command) {
     /* command for groups */
     dstEpInfo.dstAddrMode = APS_SHORT_GROUPADDR_NOEP;
     for (uint8_t i = 0; i < groupCnt; i++) {
-        dstEpInfo.dstAddr.shortAddr = groupList[i];
-        cmdOnOffSend(ep, &dstEpInfo, command);
-//        printf("groupAddr: 0x%04x\r\n", dstEpInfo.dstAddr.shortAddr);
+        aps_group_tbl_ent_t *grEntry = aps_group_search(groupList[i], ep);
+        if (grEntry) {
+            APP_DEBUG(DEBUG_ONOFF_EN, "src_ep: %d, dst_ep: %d, addr: 0x%04x\r\n", ep, grEntry->n_endpoints, grEntry->group_addr);
+            dstEpInfo.dstAddr.shortAddr = grEntry->group_addr;
+            cmdOnOffSend(ep, &dstEpInfo, command);
+        }
     }
 
     /* command when binding */
