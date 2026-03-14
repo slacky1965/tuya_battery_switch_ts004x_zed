@@ -74,7 +74,7 @@
 #define DEBUG_SAVE_EN                   OFF
 #define DEBUG_REPORTING_EN              ON
 #define DEBUG_BATTERY_EN                OFF
-#define DEBUG_PM_EN                     ON
+#define DEBUG_PM_EN                     OFF
 #define DEBUG_OTA_EN                    ON
 #define DEBUG_ONOFF_EN                  ON
 #define DEBUG_LEVEL_EN                  OFF
