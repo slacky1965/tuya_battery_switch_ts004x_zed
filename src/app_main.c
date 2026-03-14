@@ -165,6 +165,8 @@ void user_app_init(void)
     g_appCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, BATTERY_TIMER_INTERVAL);
 #endif
 
+    app_bind_cmd_init();
+
 }
 
 void app_task(void) {

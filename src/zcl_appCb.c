@@ -57,7 +57,7 @@ static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgRepo
 static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd);
 static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd);
 #endif
-static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd);
+static void app_zclDfltRspCmd(aps_data_ind_t *pIndInfo, zclDefaultRspCmd_t *pDftRspCmd, uint8_t seq_num);
 
 
 /**********************************************************************
@@ -87,39 +87,41 @@ static ev_timer_event_t *identifyTimerEvt = NULL;
  */
 void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 {
-//	printf("app_zclProcessIncomingMsg\r\n");
+	APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclProcessIncomingMsg\r\n");
 
-	uint16_t cluster = pInHdlrMsg->msg->indInfo.cluster_id;
-	uint8_t endPoint = pInHdlrMsg->msg->indInfo.dst_ep;
+	aps_data_ind_t indInfo = pInHdlrMsg->msg->indInfo;
+
+//	uint16_t cluster = pInHdlrMsg->msg->indInfo.cluster_id;
+//	uint8_t endPoint = pInHdlrMsg->msg->indInfo.dst_ep;
+//	uint16_t addr = pInHdlrMsg->msg->indInfo.src_short_addr;
 	switch(pInHdlrMsg->hdr.cmd)
 	{
 #ifdef ZCL_READ
 		case ZCL_CMD_READ_RSP:
-			app_zclReadRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclReadRspCmd(indInfo.cluster_id, pInHdlrMsg->attrCmd);
 			break;
 #endif
 #ifdef ZCL_WRITE
 		case ZCL_CMD_WRITE_RSP:
-			app_zclWriteRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclWriteRspCmd(indInfo.cluster_id, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_WRITE:
-		    app_zclWriteReqCmd(endPoint, cluster, pInHdlrMsg->attrCmd);
+		    app_zclWriteReqCmd(indInfo.dst_ep, indInfo.cluster_id, pInHdlrMsg->attrCmd);
 			break;
 #endif
 #ifdef ZCL_REPORT
 		case ZCL_CMD_CONFIG_REPORT:
-			app_zclCfgReportCmd(endPoint, cluster, pInHdlrMsg->attrCmd);
+			app_zclCfgReportCmd(indInfo.dst_ep, indInfo.cluster_id, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_CONFIG_REPORT_RSP:
-			app_zclCfgReportRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclCfgReportRspCmd(indInfo.cluster_id, pInHdlrMsg->attrCmd);
 			break;
 		case ZCL_CMD_REPORT:
-			app_zclReportCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclReportCmd(indInfo.cluster_id, pInHdlrMsg->attrCmd);
 			break;
 #endif
 		case ZCL_CMD_DEFAULT_RSP:
-		    APP_DEBUG(DEBUG_ZCL_CB_EN, "def_rsp src_addr_mode: %d, src_addr: 0x%04x\r\n", pInHdlrMsg->msg->indInfo.src_addr_mode, pInHdlrMsg->msg->indInfo.src_short_addr);
-			app_zclDfltRspCmd(cluster, pInHdlrMsg->attrCmd);
+			app_zclDfltRspCmd(&indInfo, pInHdlrMsg->attrCmd, pInHdlrMsg->hdr.seqNum);
 			break;
 		default:
 			break;
@@ -138,7 +140,7 @@ void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
  */
 static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd)
 {
-    //printf("app_zclReadRspCmd\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclReadRspCmd\r\n");
 
 }
 #endif	/* ZCL_READ */
@@ -155,7 +157,7 @@ static void app_zclReadRspCmd(uint16_t clusterId, zclReadRspCmd_t *pReadRspCmd)
  */
 static void app_zclWriteRspCmd(uint16_t clusterId, zclWriteRspCmd_t *pWriteRspCmd)
 {
-    //printf("app_zclWriteRspCmd\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclWriteRspCmd\r\n");
 
 }
 
@@ -173,7 +175,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
     zclWriteRec_t *attr = pWriteReqCmd->attrList;
     bool save = false;
 
-//    printf("app_zclWriteReqCmd\r\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclWriteReqCmd\r\n");
 
     uint8_t idx = endPoint - 1;
     zcl_onOffCfgAttr_t *pOnOffCfg = zcl_onOffCfgAttrsGet();
@@ -183,7 +185,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
         for (u8 i = 0; i < numAttr; i++) {
             if (attr[i].attrID == ZCL_CUSTOM_ATTRID_SWITCH_TYPE) {
                 uint8_t type = attr[i].attrData[0];
-                printf("type: 0x%02x, ep: %d\r\n", type, endPoint);
+                APP_DEBUG(DEBUG_ZCL_CB_EN, "type: 0x%02x, ep: %d\r\n", type, endPoint);
                 if (type >= ZCL_SWITCH_TYPE_TOGGLE && type < ZCL_CUSTOM_SWITCH_TYPE_MAXNUM) {
                     device_settings.switchType[idx] = type;
                     pOnOffCfg->switchType = type;
@@ -191,12 +193,12 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
                 }
             } else if (attr[i].attrID == ZCL_ATTRID_SWITCH_ACTION) {
                 uint8_t action = attr[i].attrData[0];
-//                printf("action: 0x%02x, ep: %d\r\n", action, endPoint);
+                APP_DEBUG(DEBUG_ZCL_CB_EN, "action: 0x%02x, ep: %d\r\n", action, endPoint);
                 device_settings.switchActions[idx] = action;
                 save = true;
             } else if (attr[i].attrID == ZCL_CUSTOM_ATTRID_DEVICE_MODEL) {
                 uint8_t model = attr[i].attrData[0];
-//                printf("model: 0x%02x, ep: %d\r\n", model, endPoint);
+                APP_DEBUG(DEBUG_ZCL_CB_EN, "model: 0x%02x, ep: %d\r\n", model, endPoint);
                 model--;
                 if (model >= DEVICE_BUTTON_1 && model < DEVICE_BUTTON_MAX) {
                     device_model_save(model);
@@ -209,7 +211,7 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
         for (u8 i = 0; i < numAttr; i++) {
             if (attr[i].attrID == ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE) {
                 uint8_t rate = attr[i].attrData[0];
-//                printf("Level rate: 0x%02x, ep: %d\r\n", rate, endPoint);
+                APP_DEBUG(DEBUG_ZCL_CB_EN, "Level rate: 0x%02x, ep: %d\r\n", rate, endPoint);
                 device_settings.defaultMoveRate[idx] = rate;
                 save = true;
             }
@@ -220,13 +222,13 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
         for (u8 i = 0; i < numAttr; i++) {
             if (attr[i].attrID == ZCL_CUSTOM_ATTRID_SCENE_SCENE_ID) {
                 uint8_t scene = attr[i].attrData[0];
-                printf("Scne ID: 0x%02x, ep: %d\r\n", scene, endPoint);
+                APP_DEBUG(DEBUG_ZCL_CB_EN, "Scne ID: 0x%02x, ep: %d\r\n", scene, endPoint);
                 device_settings.scene[idx].sceneId = scene;
                 save = true;
             } else if (attr[i].attrID == ZCL_CUSTOM_ATTRID_SCENE_GROUP_ID) {
                 uint16_t group = attr[i].attrData[0] & 0xff;
                 group |= (attr[i].attrData[1] << 8) & 0xffff;
-                printf("Group ID: 0x%04x, ep: %d\r\n", group, endPoint);
+                APP_DEBUG(DEBUG_ZCL_CB_EN, "Group ID: 0x%04x, ep: %d\r\n", group, endPoint);
                 device_settings.scene[idx].groupId = group;
                 save = true;
             }
@@ -258,9 +260,12 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
  *
  * @return  None
  */
-static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd)
-{
-    //printf("app_zclDfltRspCmd\r\n");
+static void app_zclDfltRspCmd(aps_data_ind_t *pIndInfo, zclDefaultRspCmd_t *pDftRspCmd, uint8_t seq_num) {
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclDfltRspCmd\r\n");
+
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "def_rsp src_addr_mode: %d, src_addr: 0x%04x\r\n", pIndInfo->src_addr_mode, pIndInfo->src_short_addr);
+
+    if (!pIndInfo->src_short_addr) set_send_bind_cmd(pIndInfo, seq_num);
 
 }
 
@@ -277,12 +282,12 @@ static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd
  */
 static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgReportCmd_t *pCfgReportCmd)
 {
-//    printf("app_zclCfgReportCmd\r\n");
+APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclCfgReportCmd\r\n");
 //    reportCfgInfo_t *pEntry = NULL;
 //    for (u8 i = 0; i < ZCL_REPORTING_TABLE_NUM; i++) {
 //        pEntry = &reportingTab.reportCfgInfo[i];
 //        if (pEntry->used) {
-//            printf("ep: %d, cluster: 0x%04x, attr: 0x%04x, min: %d, max: %d\r\n", pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
+//            APP_DEBUG(DEBUG_ZCL_CB_EN, "ep: %d, cluster: 0x%04x, attr: 0x%04x, min: %d, max: %d\r\n", pEntry->endPoint, pEntry->clusterID, pEntry->attrID, pEntry->minInterval, pEntry->maxInterval);
 //        }
 //
 //    }
@@ -315,7 +320,7 @@ static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgRepo
  */
 static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd)
 {
-    printf("app_zclCfgReportRspCmd\r\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclCfgReportRspCmd\r\n");
 
 }
 
@@ -330,7 +335,7 @@ static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCf
  */
 static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd)
 {
-    //printf("app_zclReportCmd\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclReportCmd\r\n");
 
 }
 #endif	/* ZCL_REPORT */
@@ -530,7 +535,7 @@ status_t app_powerCfgCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *c
  */
 static void app_zclAddGroupRspCmdHandler(zcl_addGroupRsp_t *pAddGroupRsp)
 {
-//    printf("app_zclAddGroupRspCmdHandler\r\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclAddGroupRspCmdHandler\r\n");
 }
 
 /*********************************************************************
@@ -544,7 +549,7 @@ static void app_zclAddGroupRspCmdHandler(zcl_addGroupRsp_t *pAddGroupRsp)
  */
 static void app_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGroupRsp)
 {
-//    printf("app_zclViewGroupRspCmdHandler\r\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclViewGroupRspCmdHandler\r\n");
 }
 
 /*********************************************************************
@@ -558,7 +563,7 @@ static void app_zclViewGroupRspCmdHandler(zcl_viewGroupRsp_t *pViewGroupRsp)
  */
 static void app_zclRemoveGroupRspCmdHandler(zcl_removeGroupRsp_t *pRemoveGroupRsp)
 {
-//    printf("app_zclRemoveGroupRspCmdHandler\r\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclRemoveGroupRspCmdHandler\r\n");
 }
 
 /*********************************************************************
@@ -572,7 +577,7 @@ static void app_zclRemoveGroupRspCmdHandler(zcl_removeGroupRsp_t *pRemoveGroupRs
  */
 static void app_zclGetGroupMembershipRspCmdHandler(zcl_getGroupMembershipRsp_t *pGetGroupMembershipRsp)
 {
-//    printf("app_zclGetGroupMembershipRspCmdHandler\r\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclGetGroupMembershipRspCmdHandler\r\n");
 }
 
 /*********************************************************************
@@ -588,7 +593,7 @@ static void app_zclGetGroupMembershipRspCmdHandler(zcl_getGroupMembershipRsp_t *
  */
 status_t app_groupCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload)
 {
-//    printf("app_groupCb\r\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_groupCb\r\n");
 	if(pAddrInfo->dstEp == APP_ENDPOINT1){
 		if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
 			switch(cmdId){
@@ -715,7 +720,7 @@ static void app_zclGetSceneMembershipRspCmdHandler(getSceneMemRsp_t *pGetSceneMe
  */
 status_t app_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
 
-    printf("app_sceneCb\r\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_sceneCb\r\n");
 
 //    if(pAddrInfo->dirCluster == ZCL_FRAME_SERVER_CLIENT_DIR){
 //        switch(cmdId){
@@ -929,7 +934,7 @@ status_t app_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *c
 
 status_t app_msInputCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload) {
 
-//    printf("app_aInputCb(). pAddrInfo->dirCluster: %0x%x, cmdId: 0x%x\r\n", pAddrInfo->dirCluster, cmdId);
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_aInputCb(). pAddrInfo->dirCluster: %0x%x, cmdId: 0x%x\r\n", pAddrInfo->dirCluster, cmdId);
 
     status_t status = ZCL_STA_SUCCESS;
 
@@ -949,7 +954,7 @@ status_t app_msInputCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cm
  */
 
 status_t app_levelCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload) {
-    printf("app_LevelCb\r\n");
+    APP_DEBUG(DEBUG_ZCL_CB_EN, "app_LevelCb\r\n");
 //    if(pAddrInfo->dstEp == APP_ENDPOINT1 || pAddrInfo->dstEp == APP_ENDPOINT2) {
 //        switch(cmdId){
 //            case ZCL_CMD_LEVEL_MOVE_TO_LEVEL:

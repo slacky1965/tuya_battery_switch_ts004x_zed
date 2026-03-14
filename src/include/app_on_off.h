@@ -1,6 +1,6 @@
 #ifndef SRC_INCLUDE_APP_ON_OFF_H_
 #define SRC_INCLUDE_APP_ON_OFF_H_
 
-void app_cmdOnOff(uint8_t ep, uint8_t command);
+void app_cmdOnOff(uint8_t ep, uint8_t command, uint8_t cmd_mode);
 
 #endif /* SRC_INCLUDE_APP_ON_OFF_H_ */
