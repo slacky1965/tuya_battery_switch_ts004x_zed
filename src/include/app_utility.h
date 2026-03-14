@@ -4,6 +4,8 @@
 /* for clock_time_exceed() */
 #define TIMEOUT_TICK_200MS  200*1000        /* timeout 200 ms   */
 #define TIMEOUT_TICK_250MS  250*1000        /* timeout 250 ms   */
+#define TIMEOUT_TICK_300MS  300*1000        /* timeout 300 ms   */
+#define TIMEOUT_TICK_500MS  500*1000        /* timeout 500 ms   */
 #define TIMEOUT_TICK_750MS  750*1000        /* timeout 750 ms   */
 #define TIMEOUT_TICK_1SEC   1000*1000       /* timeout 1 sec    */
 #define TIMEOUT_TICK_5SEC   5*1000*1000     /* timeout 5 sec    */
