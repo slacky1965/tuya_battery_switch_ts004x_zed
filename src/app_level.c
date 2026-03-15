@@ -3,9 +3,9 @@
 static status_t st = 0xFF;
 
 void app_level_move(uint8_t ep, uint8_t up_down) {
-    epInfo_t dstEpInfo;
-    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
 
+    status_t st;
+    epInfo_t dstEpInfo;
     move_t move;
     move.moveMode = up_down;
     move.rate = device_settings.defaultMoveRate[ep-1];
@@ -21,12 +21,17 @@ void app_level_move(uint8_t ep, uint8_t up_down) {
     /* command for groups */
     dstEpInfo.dstAddrMode = APS_SHORT_GROUPADDR_NOEP;
     for (uint8_t i = 0; i < groupCnt; i++) {
-        dstEpInfo.dstAddr.shortAddr = groupList[i];
-        zcl_level_moveWithOnOffCmd(ep, &dstEpInfo, FALSE, &move);
-//        printf("groupAddr: 0x%04x\r\n", dstEpInfo.dstAddr.shortAddr);
+        aps_group_tbl_ent_t *grEntry = aps_group_search(groupList[i], ep);
+        if (grEntry) {
+            dstEpInfo.dstAddr.shortAddr = grEntry->group_addr;
+            st = zcl_level_moveWithOnOffCmd(ep, &dstEpInfo, FALSE, &move);
+            APP_DEBUG(DEBUG_LEVEL_EN, "Level move %s for bind with rate: %d, src_ep: %d, dst_ep: %d, addr: 0x%04x, status: %d\r\n",
+                    up_down?"Up":"Down", move.rate, ep, grEntry->n_endpoints, grEntry->group_addr, st);
+        }
     }
 
     /* command when binding */
+    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
     dstEpInfo.profileId = HA_PROFILE_ID;
 //    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
 //    dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
@@ -43,12 +48,27 @@ void app_level_move(uint8_t ep, uint8_t up_down) {
                 memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
             }
             st = zcl_level_moveWithOnOffCmd(ep, &dstEpInfo, FALSE, &move);
-            APP_DEBUG(DEBUG_LEVEL_EN, "Level move %s with rate: %d, status: 0x%02x, ep: %d, clId: 0x%04x, ieee: 0x%02x%02x%02x%02x%02x%02x%02x%02x\r\n",
-                    up_down?"Down":"Up", move.rate, st, bind_tbl->srcEp, bind_tbl->clusterId,
-                    bind_tbl->dstExtAddrInfo.extAddr[0], bind_tbl->dstExtAddrInfo.extAddr[1],
-                    bind_tbl->dstExtAddrInfo.extAddr[2], bind_tbl->dstExtAddrInfo.extAddr[3],
-                    bind_tbl->dstExtAddrInfo.extAddr[4], bind_tbl->dstExtAddrInfo.extAddr[5],
-                    bind_tbl->dstExtAddrInfo.extAddr[6], bind_tbl->dstExtAddrInfo.extAddr[7]);
+#if DEBUG_LEVEL_EN
+            APP_DEBUG(DEBUG_LEVEL_EN, "Level move %s for bind with rate: %d, ep: %d, clId: 0x%04x, addrMode: %d - %s, ",
+                    up_down?"Down":"Up", move.rate, bind_tbl->srcEp, bind_tbl->clusterId, dstEpInfo.dstAddrMode,
+                    (dstEpInfo.dstAddrMode == APS_DSTADDR_EP_NOTPRESETNT)?"APS_DSTADDR_EP_NOTPRESETNT":
+                    (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP)?"APS_SHORT_GROUPADDR_NOEP":
+                    (dstEpInfo.dstAddrMode == APS_SHORT_DSTADDR_WITHEP)?"APS_SHORT_DSTADDR_WITHEP":"APS_LONG_DSTADDR_WITHEP");
+            if (dstEpInfo.dstAddrMode == APS_LONG_DSTADDR_WITHEP) {
+                APP_DEBUG(DEBUG_LEVEL_EN, "ieee: 0x%02x%02x%02x%02x%02x%02x%02x%02x, ",
+                        bind_tbl->dstExtAddrInfo.extAddr[0], bind_tbl->dstExtAddrInfo.extAddr[1],
+                        bind_tbl->dstExtAddrInfo.extAddr[2], bind_tbl->dstExtAddrInfo.extAddr[3],
+                        bind_tbl->dstExtAddrInfo.extAddr[4], bind_tbl->dstExtAddrInfo.extAddr[5],
+                        bind_tbl->dstExtAddrInfo.extAddr[6], bind_tbl->dstExtAddrInfo.extAddr[7]);
+            } else if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
+                APP_DEBUG(DEBUG_LEVEL_EN, "groupAddr: 0x%04x, ",
+                        dstEpInfo.dstAddr.shortAddr);
+            } else {
+                APP_DEBUG(DEBUG_LEVEL_EN, "shortAddr: 0x%04x, ",
+                        dstEpInfo.dstAddr.shortAddr);
+            }
+            APP_DEBUG(DEBUG_LEVEL_EN, "status: 0x%02x\r\n", st);
+#endif
         }
         bind_tbl++;
     }
@@ -57,8 +77,6 @@ void app_level_move(uint8_t ep, uint8_t up_down) {
 void app_level_stop(uint8_t ep) {
 
     epInfo_t dstEpInfo;
-    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
-
     stop_t stop;
     stop.optPresent = 0;
 
@@ -72,12 +90,17 @@ void app_level_stop(uint8_t ep) {
     /* command for groups */
     dstEpInfo.dstAddrMode = APS_SHORT_GROUPADDR_NOEP;
     for (uint8_t i = 0; i < groupCnt; i++) {
-        dstEpInfo.dstAddr.shortAddr = groupList[i];
-        zcl_level_stopCmd(ep, &dstEpInfo, FALSE, &stop);
-//        printf("groupAddr: 0x%04x\r\n", dstEpInfo.dstAddr.shortAddr);
+        aps_group_tbl_ent_t *grEntry = aps_group_search(groupList[i], ep);
+        if (grEntry) {
+            dstEpInfo.dstAddr.shortAddr = grEntry->group_addr;
+            st = zcl_level_stopCmd(ep, &dstEpInfo, FALSE, &stop);
+            APP_DEBUG(DEBUG_ONOFF_EN, "LevelStop in groups. src_ep: %d, dst_ep: %d, addr: 0x%04x, status: %d\r\n",
+                    ep, grEntry->n_endpoints, grEntry->group_addr, st);
+        }
     }
 
     /* command when binding */
+    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
     dstEpInfo.profileId = HA_PROFILE_ID;
 //    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
 //    dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
@@ -94,12 +117,27 @@ void app_level_stop(uint8_t ep) {
                 memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
             }
             st = zcl_level_stopCmd(ep, &dstEpInfo, FALSE, &stop);
-            APP_DEBUG(DEBUG_LEVEL_EN, "Level stop, status: 0x%02x, ep: %d, clId: 0x%04x, ieee: 0x%02x%02x%02x%02x%02x%02x%02x%02x\r\n",
-                    st, bind_tbl->srcEp, bind_tbl->clusterId,
-                    bind_tbl->dstExtAddrInfo.extAddr[0], bind_tbl->dstExtAddrInfo.extAddr[1],
-                    bind_tbl->dstExtAddrInfo.extAddr[2], bind_tbl->dstExtAddrInfo.extAddr[3],
-                    bind_tbl->dstExtAddrInfo.extAddr[4], bind_tbl->dstExtAddrInfo.extAddr[5],
-                    bind_tbl->dstExtAddrInfo.extAddr[6], bind_tbl->dstExtAddrInfo.extAddr[7]);
+#if DEBUG_LEVEL_EN
+            APP_DEBUG(DEBUG_LEVEL_EN, "Level stop for bind, ep: %d, clId: 0x%04x, addrMode: %d - %s, ",
+                    bind_tbl->srcEp, bind_tbl->clusterId, dstEpInfo.dstAddrMode,
+                    (dstEpInfo.dstAddrMode == APS_DSTADDR_EP_NOTPRESETNT)?"APS_DSTADDR_EP_NOTPRESETNT":
+                    (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP)?"APS_SHORT_GROUPADDR_NOEP":
+                    (dstEpInfo.dstAddrMode == APS_SHORT_DSTADDR_WITHEP)?"APS_SHORT_DSTADDR_WITHEP":"APS_LONG_DSTADDR_WITHEP");
+            if (dstEpInfo.dstAddrMode == APS_LONG_DSTADDR_WITHEP) {
+                APP_DEBUG(DEBUG_LEVEL_EN, "ieee: 0x%02x%02x%02x%02x%02x%02x%02x%02x, ",
+                        bind_tbl->dstExtAddrInfo.extAddr[0], bind_tbl->dstExtAddrInfo.extAddr[1],
+                        bind_tbl->dstExtAddrInfo.extAddr[2], bind_tbl->dstExtAddrInfo.extAddr[3],
+                        bind_tbl->dstExtAddrInfo.extAddr[4], bind_tbl->dstExtAddrInfo.extAddr[5],
+                        bind_tbl->dstExtAddrInfo.extAddr[6], bind_tbl->dstExtAddrInfo.extAddr[7]);
+            } else if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
+                APP_DEBUG(DEBUG_LEVEL_EN, "groupAddr: 0x%04x, ",
+                        dstEpInfo.dstAddr.shortAddr);
+            } else {
+                APP_DEBUG(DEBUG_LEVEL_EN, "shortAddr: 0x%04x, ",
+                        dstEpInfo.dstAddr.shortAddr);
+            }
+            APP_DEBUG(DEBUG_LEVEL_EN, "status: 0x%02x\r\n", st);
+#endif
         }
         bind_tbl++;
     }
@@ -107,8 +145,6 @@ void app_level_stop(uint8_t ep) {
 
 void app_level_step(uint8_t ep, uint8_t up_down) {
     epInfo_t dstEpInfo;
-    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
-
     step_t step;
     step.stepMode = up_down;
     step.stepSize = 25;
@@ -125,12 +161,17 @@ void app_level_step(uint8_t ep, uint8_t up_down) {
     /* command for groups */
     dstEpInfo.dstAddrMode = APS_SHORT_GROUPADDR_NOEP;
     for (uint8_t i = 0; i < groupCnt; i++) {
-        dstEpInfo.dstAddr.shortAddr = groupList[i];
-        zcl_level_stepWithOnOffCmd(ep, &dstEpInfo, FALSE, &step);
-//        printf("groupAddr: 0x%04x\r\n", dstEpInfo.dstAddr.shortAddr);
+        aps_group_tbl_ent_t *grEntry = aps_group_search(groupList[i], ep);
+        if (grEntry) {
+            dstEpInfo.dstAddr.shortAddr = grEntry->group_addr;
+            st = zcl_level_stepWithOnOffCmd(ep, &dstEpInfo, FALSE, &step);
+            APP_DEBUG(DEBUG_LEVEL_EN, "Level step %s for bind with size: %d, src_ep: %d, dst_ep: %d, addr: 0x%04x, status: %d\r\n",
+                    up_down?"Up":"Down", step.stepSize, ep, grEntry->n_endpoints, grEntry->group_addr, st);
+        }
     }
 
     /* command when binding */
+    TL_SETSTRUCTCONTENT(dstEpInfo, 0);
     dstEpInfo.profileId = HA_PROFILE_ID;
 //    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
 //    dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
@@ -147,12 +188,27 @@ void app_level_step(uint8_t ep, uint8_t up_down) {
                 memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
             }
             st = zcl_level_stepWithOnOffCmd(ep, &dstEpInfo, FALSE, &step);
-            APP_DEBUG(DEBUG_LEVEL_EN, "Level step %s, status: 0x%02x, ep: %d, clId: 0x%04x, ieee: 0x%02x%02x%02x%02x%02x%02x%02x%02x\r\n",
-                    up_down?"Down":"Up", st, bind_tbl->srcEp, bind_tbl->clusterId,
-                    bind_tbl->dstExtAddrInfo.extAddr[0], bind_tbl->dstExtAddrInfo.extAddr[1],
-                    bind_tbl->dstExtAddrInfo.extAddr[2], bind_tbl->dstExtAddrInfo.extAddr[3],
-                    bind_tbl->dstExtAddrInfo.extAddr[4], bind_tbl->dstExtAddrInfo.extAddr[5],
-                    bind_tbl->dstExtAddrInfo.extAddr[6], bind_tbl->dstExtAddrInfo.extAddr[7]);
+#if DEBUG_LEVEL_EN
+            APP_DEBUG(DEBUG_LEVEL_EN, "Level step %s for bind with size: %d, ep: %d, clId: 0x%04x, addrMode: %d - %s, ",
+                    up_down?"Down":"Up", step.stepSize, bind_tbl->srcEp, bind_tbl->clusterId, dstEpInfo.dstAddrMode,
+                    (dstEpInfo.dstAddrMode == APS_DSTADDR_EP_NOTPRESETNT)?"APS_DSTADDR_EP_NOTPRESETNT":
+                    (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP)?"APS_SHORT_GROUPADDR_NOEP":
+                    (dstEpInfo.dstAddrMode == APS_SHORT_DSTADDR_WITHEP)?"APS_SHORT_DSTADDR_WITHEP":"APS_LONG_DSTADDR_WITHEP");
+            if (dstEpInfo.dstAddrMode == APS_LONG_DSTADDR_WITHEP) {
+                APP_DEBUG(DEBUG_LEVEL_EN, "ieee: 0x%02x%02x%02x%02x%02x%02x%02x%02x, ",
+                        bind_tbl->dstExtAddrInfo.extAddr[0], bind_tbl->dstExtAddrInfo.extAddr[1],
+                        bind_tbl->dstExtAddrInfo.extAddr[2], bind_tbl->dstExtAddrInfo.extAddr[3],
+                        bind_tbl->dstExtAddrInfo.extAddr[4], bind_tbl->dstExtAddrInfo.extAddr[5],
+                        bind_tbl->dstExtAddrInfo.extAddr[6], bind_tbl->dstExtAddrInfo.extAddr[7]);
+            } else if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
+                APP_DEBUG(DEBUG_LEVEL_EN, "groupAddr: 0x%04x, ",
+                        dstEpInfo.dstAddr.shortAddr);
+            } else {
+                APP_DEBUG(DEBUG_LEVEL_EN, "shortAddr: 0x%04x, ",
+                        dstEpInfo.dstAddr.shortAddr);
+            }
+            APP_DEBUG(DEBUG_LEVEL_EN, "status: 0x%02x\r\n", st);
+#endif
         }
         bind_tbl++;
     }
