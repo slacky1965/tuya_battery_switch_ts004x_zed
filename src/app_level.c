@@ -1,5 +1,7 @@
 #include "app_main.h"
 
+static status_t st = 0xFF;
+
 void app_level_move(uint8_t ep, uint8_t up_down) {
     epInfo_t dstEpInfo;
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
@@ -26,12 +28,30 @@ void app_level_move(uint8_t ep, uint8_t up_down) {
 
     /* command when binding */
     dstEpInfo.profileId = HA_PROFILE_ID;
-    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+//    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+//    dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
 
-
-    zcl_level_moveWithOnOffCmd(ep, &dstEpInfo, FALSE, &move);
-
-    DEBUG(DEBUG_LEVEL_EN, "Ep: %d, Level move %s with rate: %d\r\n", ep, up_down?"Down":"Up", move.rate);
+    aps_binding_entry_t *bind_tbl = bindTblEntryGet();
+    for (uint8_t j = 0; j < APS_BINDING_TABLE_NUM; j++) {
+        if (bind_tbl->used && bind_tbl->clusterId == ZCL_CLUSTER_GEN_LEVEL_CONTROL && bind_tbl->srcEp == ep) {
+            dstEpInfo.dstAddrMode = bind_tbl->dstAddrMode;
+            if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
+                dstEpInfo.dstAddr.shortAddr = bind_tbl->groupAddr;
+            } else {
+                dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
+                dstEpInfo.dstEp = bind_tbl->dstExtAddrInfo.dstEp;
+                memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
+            }
+            st = zcl_level_moveWithOnOffCmd(ep, &dstEpInfo, FALSE, &move);
+            APP_DEBUG(DEBUG_LEVEL_EN, "Level move %s with rate: %d, status: 0x%02x, ep: %d, clId: 0x%04x, ieee: 0x%02x%02x%02x%02x%02x%02x%02x%02x\r\n",
+                    up_down?"Down":"Up", move.rate, st, bind_tbl->srcEp, bind_tbl->clusterId,
+                    bind_tbl->dstExtAddrInfo.extAddr[0], bind_tbl->dstExtAddrInfo.extAddr[1],
+                    bind_tbl->dstExtAddrInfo.extAddr[2], bind_tbl->dstExtAddrInfo.extAddr[3],
+                    bind_tbl->dstExtAddrInfo.extAddr[4], bind_tbl->dstExtAddrInfo.extAddr[5],
+                    bind_tbl->dstExtAddrInfo.extAddr[6], bind_tbl->dstExtAddrInfo.extAddr[7]);
+        }
+        bind_tbl++;
+    }
 }
 
 void app_level_stop(uint8_t ep) {
@@ -59,12 +79,30 @@ void app_level_stop(uint8_t ep) {
 
     /* command when binding */
     dstEpInfo.profileId = HA_PROFILE_ID;
-    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+//    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+//    dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
 
-
-    zcl_level_stopCmd(ep, &dstEpInfo, FALSE, &stop);
-
-    DEBUG(DEBUG_LEVEL_EN, "Ep: %d, Level stop\r\n", ep);
+    aps_binding_entry_t *bind_tbl = bindTblEntryGet();
+    for (uint8_t j = 0; j < APS_BINDING_TABLE_NUM; j++) {
+        if (bind_tbl->used && bind_tbl->clusterId == ZCL_CLUSTER_GEN_LEVEL_CONTROL && bind_tbl->srcEp == ep) {
+            dstEpInfo.dstAddrMode = bind_tbl->dstAddrMode;
+            if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
+                dstEpInfo.dstAddr.shortAddr = bind_tbl->groupAddr;
+            } else {
+                dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
+                dstEpInfo.dstEp = bind_tbl->dstExtAddrInfo.dstEp;
+                memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
+            }
+            st = zcl_level_stopCmd(ep, &dstEpInfo, FALSE, &stop);
+            APP_DEBUG(DEBUG_LEVEL_EN, "Level stop, status: 0x%02x, ep: %d, clId: 0x%04x, ieee: 0x%02x%02x%02x%02x%02x%02x%02x%02x\r\n",
+                    st, bind_tbl->srcEp, bind_tbl->clusterId,
+                    bind_tbl->dstExtAddrInfo.extAddr[0], bind_tbl->dstExtAddrInfo.extAddr[1],
+                    bind_tbl->dstExtAddrInfo.extAddr[2], bind_tbl->dstExtAddrInfo.extAddr[3],
+                    bind_tbl->dstExtAddrInfo.extAddr[4], bind_tbl->dstExtAddrInfo.extAddr[5],
+                    bind_tbl->dstExtAddrInfo.extAddr[6], bind_tbl->dstExtAddrInfo.extAddr[7]);
+        }
+        bind_tbl++;
+    }
 }
 
 void app_level_step(uint8_t ep, uint8_t up_down) {
@@ -94,11 +132,29 @@ void app_level_step(uint8_t ep, uint8_t up_down) {
 
     /* command when binding */
     dstEpInfo.profileId = HA_PROFILE_ID;
-    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+//    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
+//    dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
 
-
-    zcl_level_stepWithOnOffCmd(ep, &dstEpInfo, FALSE, &step);
-
-    DEBUG(DEBUG_LEVEL_EN, "Ep: %d, Level step %s\r\n", ep, up_down?"Down":"Up");
+    aps_binding_entry_t *bind_tbl = bindTblEntryGet();
+    for (uint8_t j = 0; j < APS_BINDING_TABLE_NUM; j++) {
+        if (bind_tbl->used && bind_tbl->clusterId == ZCL_CLUSTER_GEN_LEVEL_CONTROL && bind_tbl->srcEp == ep) {
+            dstEpInfo.dstAddrMode = bind_tbl->dstAddrMode;
+            if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
+                dstEpInfo.dstAddr.shortAddr = bind_tbl->groupAddr;
+            } else {
+                dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
+                dstEpInfo.dstEp = bind_tbl->dstExtAddrInfo.dstEp;
+                memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
+            }
+            st = zcl_level_stepWithOnOffCmd(ep, &dstEpInfo, FALSE, &step);
+            APP_DEBUG(DEBUG_LEVEL_EN, "Level step %s, status: 0x%02x, ep: %d, clId: 0x%04x, ieee: 0x%02x%02x%02x%02x%02x%02x%02x%02x\r\n",
+                    up_down?"Down":"Up", st, bind_tbl->srcEp, bind_tbl->clusterId,
+                    bind_tbl->dstExtAddrInfo.extAddr[0], bind_tbl->dstExtAddrInfo.extAddr[1],
+                    bind_tbl->dstExtAddrInfo.extAddr[2], bind_tbl->dstExtAddrInfo.extAddr[3],
+                    bind_tbl->dstExtAddrInfo.extAddr[4], bind_tbl->dstExtAddrInfo.extAddr[5],
+                    bind_tbl->dstExtAddrInfo.extAddr[6], bind_tbl->dstExtAddrInfo.extAddr[7]);
+        }
+        bind_tbl++;
+    }
 }
 
