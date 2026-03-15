@@ -77,7 +77,7 @@
 #define DEBUG_PM_EN                     OFF
 #define DEBUG_OTA_EN                    ON
 #define DEBUG_ONOFF_EN                  ON
-#define DEBUG_LEVEL_EN                  OFF
+#define DEBUG_LEVEL_EN                  ON
 #define DEBUG_SCENE_EN                  ON
 #define DEBUG_ZCL_CB_EN                 ON
 #define DEBUG_ZB_CB_EN                  OFF
