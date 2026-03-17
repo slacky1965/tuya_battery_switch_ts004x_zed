@@ -38,13 +38,15 @@ static drv_pm_pinCfg_t pin_PmCfg[] = {
     },
 };
 
+static uint32_t pm_pin_num = sizeof(pin_PmCfg)/sizeof(drv_pm_pinCfg_t);
+
 void app_wakeupPinConfig() {
-    drv_pm_wakeupPinConfig(pin_PmCfg, sizeof(pin_PmCfg)/sizeof(drv_pm_pinCfg_t));
+    drv_pm_wakeupPinConfig(pin_PmCfg, pm_pin_num /*sizeof(pin_PmCfg)/sizeof(drv_pm_pinCfg_t)*/);
 }
 
 
 void app_wakeupPinLevelChange() {
-    drv_pm_wakeupPinLevelChange(pin_PmCfg, 1);
+    drv_pm_wakeupPinLevelChange(pin_PmCfg, pm_pin_num /*sizeof(pin_PmCfg)/sizeof(drv_pm_pinCfg_t)*/);
 }
 
 #if DEBUG_PM_EN
