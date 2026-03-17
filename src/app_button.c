@@ -34,7 +34,9 @@ static int32_t clearSleepCb(void *args) {
 
     APP_DEBUG(DEBUG_PM_EN, "clearSleepCb\r\n");
 
-    if (!g_appCtx.ota) g_appCtx.not_sleep = false;
+    if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
+        g_appCtx.not_sleep = false;
+    }
 
     timerClearSleepEvt = NULL;
     return -1;
@@ -162,6 +164,7 @@ static void read_button_level(uint8_t i) {
                         break;
                     case ACTION_QUADRUPLE:                                      // 4
                         batteryCb(NULL);
+                        app_setPollRate(TIMEOUT_20SEC);
                         break;
                     default:
                         break;
@@ -171,10 +174,7 @@ static void read_button_level(uint8_t i) {
             if (timerClearSleepEvt) {
                 TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
             }
-            if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
-                timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
-            }
-
+            timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
         }
 
         button->counter = 0;
@@ -188,9 +188,7 @@ static void read_button_level(uint8_t i) {
         if (timerClearSleepEvt) {
             TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
         }
-        if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
-            timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_500MS);
-        }
+        timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_500MS);
     }
 }
 
@@ -275,6 +273,7 @@ static void read_button_multifunction(uint8_t i) {
                     case ACTION_QUADRUPLE:
                         if (button->counter == BATTERY_COUNTER) {
                             batteryCb(NULL);
+                            app_setPollRate(TIMEOUT_20SEC);
                         }
                         break;
                     default:
@@ -289,9 +288,7 @@ static void read_button_multifunction(uint8_t i) {
             if (timerClearSleepEvt) {
                 TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
             }
-            if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
-                timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
-            }
+            timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
 
         }
 
@@ -306,9 +303,7 @@ static void read_button_multifunction(uint8_t i) {
         if (timerClearSleepEvt) {
             TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
         }
-        if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
-            timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_500MS);
-        }
+        timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_500MS);
     }
 }
 
@@ -375,13 +370,12 @@ static void read_button_scene(uint8_t i) {
         APP_DEBUG(DEBUG_BUTTON_EN, "Scene. Button %d pressed %d times\r\n", i+1, button->counter);
         if (button->counter == BATTERY_COUNTER) {
             batteryCb(NULL);
+            app_setPollRate(TIMEOUT_20SEC);
         }
         if (timerClearSleepEvt) {
             TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
         }
-        if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
-            timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
-        }
+        timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
         button->counter = 0;
         button->pressed = false;
         button->released = false;
@@ -488,13 +482,12 @@ static void read_button_toggle(uint8_t i) {
         APP_DEBUG(DEBUG_BUTTON_EN, "Toggle. Button %d pressed %d times\r\n", i+1, button->counter);
         if (button->counter == BATTERY_COUNTER) {
             batteryCb(NULL);
+            app_setPollRate(TIMEOUT_20SEC);
         }
         if (timerClearSleepEvt) {
             TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
         }
-        if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
-            timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
-        }
+        timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_1SEC);
         button->counter = 0;
         button->pressed = false;
         button->released = false;
@@ -506,9 +499,7 @@ static void read_button_toggle(uint8_t i) {
         if (timerClearSleepEvt) {
             TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
         }
-        if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
-            timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_500MS);
-        }
+        timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_500MS);
     }
 }
 
