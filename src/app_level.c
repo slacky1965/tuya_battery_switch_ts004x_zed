@@ -105,7 +105,7 @@ void app_move_level(uint8_t ep, uint8_t up_down) {
             dstEpInfo.dstAddr.shortAddr = grEntry->group_addr;
             st = zcl_level_moveWithOnOffCmd(ep, &dstEpInfo, FALSE, &move);
             APP_DEBUG(DEBUG_LEVEL_EN, "Level move %s for bind with rate: %d, src_ep: %d, dst_ep: %d, addr: 0x%04x, status: %d\r\n",
-                    up_down?"Up":"Down", move.rate, ep, grEntry->n_endpoints, grEntry->group_addr, st);
+                    up_down?"Down":"Up", move.rate, ep, grEntry->n_endpoints, grEntry->group_addr, st);
         }
     }
 
@@ -245,7 +245,7 @@ void app_step_level(uint8_t ep, uint8_t up_down) {
             dstEpInfo.dstAddr.shortAddr = grEntry->group_addr;
             st = zcl_level_stepWithOnOffCmd(ep, &dstEpInfo, FALSE, &step);
             APP_DEBUG(DEBUG_LEVEL_EN, "Level step %s for bind with size: %d, src_ep: %d, dst_ep: %d, addr: 0x%04x, status: %d\r\n",
-                    up_down?"Up":"Down", step.stepSize, ep, grEntry->n_endpoints, grEntry->group_addr, st);
+                    up_down?"Down":"Up", step.stepSize, ep, grEntry->n_endpoints, grEntry->group_addr, st);
         }
     }
 
