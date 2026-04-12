@@ -1,5 +1,5 @@
-#ifndef SRC_ZCL_ZCL_ONOFFSWITCHCFG_H_
-#define SRC_ZCL_ZCL_ONOFFSWITCHCFG_H_
+#ifndef SRC_ZIGBEE_ZCL_ZCL_ONOFFSWITCHCFG_H_
+#define SRC_ZIGBEE_ZCL_ZCL_ONOFFSWITCHCFG_H_
 
 #define ZCL_ATTRID_SWITCH_TYPE          0x0000
 #define ZCL_ATTRID_SWITCH_ACTION        0x0010
@@ -16,4 +16,4 @@ status_t zcl_onOffSwitchCfg_register(u8 endpoint, u16 manuCode, u8 attrNum, cons
 nv_sts_t zcl_onOffCfgAttr_save(void);
 nv_sts_t zcl_onOffCfgAttr_restore(void);
 
-#endif /* SRC_ZCL_ZCL_ONOFFSWITCHCFG_H_ */
+#endif /* SRC_ZIGBEE_ZCL_ZCL_ONOFFSWITCHCFG_H_ */

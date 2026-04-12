@@ -180,7 +180,7 @@ void app_task(void) {
         report_handler();
 #if PM_ENABLE
         button_handler();
-        if(!button_idle() && !factory_reset) {
+        if(!button_idle()) {
             app_lowPowerEnter();
         }
 #endif

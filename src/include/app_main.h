@@ -7,19 +7,20 @@
 #include "bdb.h"
 #include "ota.h"
 
-#include "zcl_onoffSwitchCfg.h"
-#include "zcl_custom_attr.h"
 #include "app_scene.h"
 #include "app_led.h"
 #include "app_device.h"
 #include "app_button.h"
 #include "app_pm.h"
 #include "app_battery.h"
+#include "app_findbind.h"
 #include "app_reporting.h"
 #include "app_endpoint_cfg.h"
 #include "app_utility.h"
 #include "app_on_off.h"
 #include "app_level.h"
+#include "zcl_custom_attr.h"
+#include "zcl_onoffSwitchCfg.h"
 
 typedef struct {
     uint8_t keyType; /* CERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
@@ -91,6 +92,6 @@ void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
 void app_otaProcessMsgHandler(uint8_t evt, uint8_t status);
 void app_wakeupPinLevelChange();
-
+int32_t app_bdbFindAndBindStart(void *arg);
 
 #endif /* SRC_INCLUDE_APP_MAIN_H_ */

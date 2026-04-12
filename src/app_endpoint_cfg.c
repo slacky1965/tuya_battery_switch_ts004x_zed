@@ -670,6 +670,7 @@ zcl_levelAttr_t g_zcl_levelAttrs[DEVICE_BUTTON_MAX] = {
         .maxLevel = ZCL_LEVEL_ATTR_MAX_LEVEL,
         .options  = 0,
         .defaultMoveRate = 100,
+        .transitionTime = LEVEL_TRANSITION_TIME,
     },
     {
         .currentLevel = 10,
@@ -677,6 +678,7 @@ zcl_levelAttr_t g_zcl_levelAttrs[DEVICE_BUTTON_MAX] = {
         .maxLevel = ZCL_LEVEL_ATTR_MAX_LEVEL,
         .options  = 0,
         .defaultMoveRate = 100,
+        .transitionTime = LEVEL_TRANSITION_TIME,
     },
     {
         .currentLevel = 10,
@@ -684,6 +686,7 @@ zcl_levelAttr_t g_zcl_levelAttrs[DEVICE_BUTTON_MAX] = {
         .maxLevel = ZCL_LEVEL_ATTR_MAX_LEVEL,
         .options  = 0,
         .defaultMoveRate = 100,
+        .transitionTime = LEVEL_TRANSITION_TIME,
     },
     {
         .currentLevel = 10,
@@ -691,6 +694,7 @@ zcl_levelAttr_t g_zcl_levelAttrs[DEVICE_BUTTON_MAX] = {
         .maxLevel = ZCL_LEVEL_ATTR_MAX_LEVEL,
         .options  = 0,
         .defaultMoveRate = 100,
+        .transitionTime = LEVEL_TRANSITION_TIME,
     },
     {
         .currentLevel = 10,
@@ -698,6 +702,7 @@ zcl_levelAttr_t g_zcl_levelAttrs[DEVICE_BUTTON_MAX] = {
         .maxLevel = ZCL_LEVEL_ATTR_MAX_LEVEL,
         .options  = 0,
         .defaultMoveRate = 100,
+        .transitionTime = LEVEL_TRANSITION_TIME,
     },
     {
         .currentLevel = 10,
@@ -705,16 +710,18 @@ zcl_levelAttr_t g_zcl_levelAttrs[DEVICE_BUTTON_MAX] = {
         .maxLevel = ZCL_LEVEL_ATTR_MAX_LEVEL,
         .options  = 0,
         .defaultMoveRate = 100,
+        .transitionTime = LEVEL_TRANSITION_TIME,
     },
 };
 
 const zclAttrInfo_t level1_attrTbl[] =
 {
     { ZCL_ATTRID_LEVEL_CURRENT_LEVEL,       ZCL_UINT8,      RR, (uint8_t*)&g_zcl_levelAttrs[0].currentLevel },
-    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[0].minLevel     },
-    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[0].maxLevel     },
+    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[0].minLevel     },
+    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[0].maxLevel     },
     { ZCL_ATTRID_LEVEL_OPTIONS,             ZCL_BITMAP8,    RW, (uint8_t*)&g_zcl_levelAttrs[0].options      },
-    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[0].defaultMoveRate     },
+    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[0].defaultMoveRate  },
+    { ZCL_ATTRID_LEVEL_ON_OFF_TRANSITION_TIME, ZCL_UINT16,  RW, (uint8_t*)&g_zcl_levelAttrs[0].transitionTime   },
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (u8*)&zcl_attr_global_clusterRevision       },
 };
@@ -724,10 +731,11 @@ const zclAttrInfo_t level1_attrTbl[] =
 const zclAttrInfo_t level2_attrTbl[] =
 {
     { ZCL_ATTRID_LEVEL_CURRENT_LEVEL,       ZCL_UINT8,      RR, (uint8_t*)&g_zcl_levelAttrs[1].currentLevel },
-    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[1].minLevel     },
-    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[1].maxLevel     },
+    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[1].minLevel     },
+    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[1].maxLevel     },
     { ZCL_ATTRID_LEVEL_OPTIONS,             ZCL_BITMAP8,    RW, (uint8_t*)&g_zcl_levelAttrs[1].options      },
-    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[1].defaultMoveRate     },
+    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[1].defaultMoveRate  },
+    { ZCL_ATTRID_LEVEL_ON_OFF_TRANSITION_TIME, ZCL_UINT16,  RW, (uint8_t*)&g_zcl_levelAttrs[1].transitionTime   },
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (u8*)&zcl_attr_global_clusterRevision       },
 };
@@ -737,10 +745,11 @@ const zclAttrInfo_t level2_attrTbl[] =
 const zclAttrInfo_t level3_attrTbl[] =
 {
     { ZCL_ATTRID_LEVEL_CURRENT_LEVEL,       ZCL_UINT8,      RR, (uint8_t*)&g_zcl_levelAttrs[2].currentLevel },
-    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[2].minLevel     },
-    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[2].maxLevel     },
+    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[2].minLevel     },
+    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[2].maxLevel     },
     { ZCL_ATTRID_LEVEL_OPTIONS,             ZCL_BITMAP8,    RW, (uint8_t*)&g_zcl_levelAttrs[2].options      },
-    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[2].defaultMoveRate     },
+    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[2].defaultMoveRate  },
+    { ZCL_ATTRID_LEVEL_ON_OFF_TRANSITION_TIME, ZCL_UINT16,  RW, (uint8_t*)&g_zcl_levelAttrs[2].transitionTime   },
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (u8*)&zcl_attr_global_clusterRevision       },
 };
@@ -750,10 +759,11 @@ const zclAttrInfo_t level3_attrTbl[] =
 const zclAttrInfo_t level4_attrTbl[] =
 {
     { ZCL_ATTRID_LEVEL_CURRENT_LEVEL,       ZCL_UINT8,      RR, (uint8_t*)&g_zcl_levelAttrs[3].currentLevel },
-    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[3].minLevel     },
-    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[3].maxLevel     },
+    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[3].minLevel     },
+    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[3].maxLevel     },
     { ZCL_ATTRID_LEVEL_OPTIONS,             ZCL_BITMAP8,    RW, (uint8_t*)&g_zcl_levelAttrs[3].options      },
-    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[3].defaultMoveRate     },
+    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[3].defaultMoveRate  },
+    { ZCL_ATTRID_LEVEL_ON_OFF_TRANSITION_TIME, ZCL_UINT16,  RW, (uint8_t*)&g_zcl_levelAttrs[3].transitionTime   },
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (u8*)&zcl_attr_global_clusterRevision       },
 };
@@ -763,10 +773,11 @@ const zclAttrInfo_t level4_attrTbl[] =
 const zclAttrInfo_t level5_attrTbl[] =
 {
     { ZCL_ATTRID_LEVEL_CURRENT_LEVEL,       ZCL_UINT8,      RR, (uint8_t*)&g_zcl_levelAttrs[4].currentLevel },
-    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[4].minLevel     },
-    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[4].maxLevel     },
+    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[4].minLevel     },
+    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[4].maxLevel     },
     { ZCL_ATTRID_LEVEL_OPTIONS,             ZCL_BITMAP8,    RW, (uint8_t*)&g_zcl_levelAttrs[4].options      },
-    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[4].defaultMoveRate     },
+    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[4].defaultMoveRate  },
+    { ZCL_ATTRID_LEVEL_ON_OFF_TRANSITION_TIME, ZCL_UINT16,  RW, (uint8_t*)&g_zcl_levelAttrs[4].transitionTime   },
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (u8*)&zcl_attr_global_clusterRevision       },
 };
@@ -776,10 +787,11 @@ const zclAttrInfo_t level5_attrTbl[] =
 const zclAttrInfo_t level6_attrTbl[] =
 {
     { ZCL_ATTRID_LEVEL_CURRENT_LEVEL,       ZCL_UINT8,      RR, (uint8_t*)&g_zcl_levelAttrs[5].currentLevel },
-    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[5].minLevel     },
-    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      R,  (uint8_t*)&g_zcl_levelAttrs[5].maxLevel     },
+    { ZCL_ATTRID_LEVEL_MIN_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[5].minLevel     },
+    { ZCL_ATTRID_LEVEL_MAX_LEVEL,           ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[5].maxLevel     },
     { ZCL_ATTRID_LEVEL_OPTIONS,             ZCL_BITMAP8,    RW, (uint8_t*)&g_zcl_levelAttrs[5].options      },
-    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[5].defaultMoveRate     },
+    { ZCL_ATTRID_LEVEL_DEFAULT_MOVE_RATE,   ZCL_UINT8,      RW, (uint8_t*)&g_zcl_levelAttrs[5].defaultMoveRate  },
+    { ZCL_ATTRID_LEVEL_ON_OFF_TRANSITION_TIME, ZCL_UINT16,  RW, (uint8_t*)&g_zcl_levelAttrs[5].transitionTime   },
 
     { ZCL_ATTRID_GLOBAL_CLUSTER_REVISION,   ZCL_UINT16,     R,  (u8*)&zcl_attr_global_clusterRevision       },
 };

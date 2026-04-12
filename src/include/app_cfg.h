@@ -81,6 +81,8 @@
 #define DEBUG_SCENE_EN                  ON
 #define DEBUG_ZCL_CB_EN                 ON
 #define DEBUG_ZB_CB_EN                  OFF
+#define DEBUG_BDB_EN                    ON
+#define DEBUG_FINDBIND_EN               ON
 
 /* PM */
 #define PM_ENABLE						ON
@@ -90,7 +92,7 @@
 
 /* BDB */
 #define TOUCHLINK_SUPPORT				OFF
-#define FIND_AND_BIND_SUPPORT			OFF
+#define FIND_AND_BIND_SUPPORT			ON
 
 /* Board define */
 #if defined(MCU_CORE_826x)

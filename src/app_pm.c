@@ -2,6 +2,10 @@
 
 #define DEBUG_PM_LOCAL_EN 1 // DEBUG_PM_EN
 
+#if UART_PRINTF_MODE
+static uint32_t time_point = 0;
+#endif
+
 #if PM_ENABLE
 /**
  *  @brief Definition for wakeup source and level for PM
@@ -122,6 +126,12 @@ void app_lowPowerEnter() {
 #if DEBUG_PM_EN
         app_drv_pm_lowPowerEnter();
 #else
+#if UART_PRINTF_MODE
+        if (clock_time_exceed(time_point, TIMEOUT_TICK_1SEC)) {
+            APP_DEBUG(UART_PRINTF_MODE, ".");
+            time_point = clock_time();
+        }
+#endif
         drv_pm_lowPowerEnter();
 #endif
     } else /*if (zb_isDeviceJoinedNwk())*/{
