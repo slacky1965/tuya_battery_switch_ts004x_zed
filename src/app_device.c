@@ -197,8 +197,8 @@ void device_init() {
     if (first_start) {
         first_start = false;
         device_model_restore();
-    } else {
-        device_model_init();
+//    } else {
+//        device_model_init();
     }
 }
 

@@ -165,6 +165,7 @@ void user_app_init(void)
     g_appCtx.timerBatteryEvt = TL_ZB_TIMER_SCHEDULE(batteryCb, NULL, BATTERY_TIMER_INTERVAL);
 #endif
 
+    onoff_repeat_cmd_init();
 }
 
 void app_task(void) {
@@ -231,7 +232,8 @@ void user_init(bool isRetention) {
 
     if(!isRetention) {
 
-        device_model_restore();
+//        device_model_restore();
+        device_init();
 
         start_message();
 
