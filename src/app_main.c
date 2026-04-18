@@ -93,6 +93,11 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
  * FUNCTIONS
  */
 
+//void afTestCb(void *args) {
+//    apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)args;
+//    APP_DEBUG(UART_PRINTF_MODE, "afTestCb() - status: %d\r\n", pApsDataCnf->status);
+//}
+
 /*********************************************************************
  * @fn      stack_init
  *
@@ -191,7 +196,7 @@ extern volatile uint16_t T_evtExcept[4];
 
 static void appSysException(void) {
 
-    DEBUG(UART_PRINTF_MODE, "app_sysException, line: %d, event: 0x%02x, reset\r\n", T_evtExcept[0], T_evtExcept[1]);
+    APP_DEBUG(UART_PRINTF_MODE, "app_sysException, line: %d, event: 0x%02x, reset\r\n", T_evtExcept[0], T_evtExcept[1]);
 
 #if 1
     SYSTEM_RESET();
