@@ -32,6 +32,7 @@ void app_cmdOnOff(uint8_t ep, uint8_t command) {
     epInfo_t dstEpInfo;
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
     dstEpInfo.profileId = HA_PROFILE_ID;
+    dstEpInfo.txOptions = APS_TX_OPT_ACK_TX;
 
     uint16_t groupList[APS_GROUP_TABLE_NUM];
     uint8_t groupCnt = 0;
@@ -52,6 +53,7 @@ void app_cmdOnOff(uint8_t ep, uint8_t command) {
     /* command when binding */
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
     dstEpInfo.profileId = HA_PROFILE_ID;
+    dstEpInfo.txOptions = APS_TX_OPT_ACK_TX;
 //    dstEpInfo.dstAddrMode = APS_DSTADDR_EP_NOTPRESETNT;
 //    dstEpInfo.dstAddrMode = APS_SHORT_GROUPADDR_NOEP;
 //    dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
