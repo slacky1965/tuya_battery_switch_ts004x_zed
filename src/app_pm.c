@@ -141,6 +141,7 @@ void app_lowPowerEnter() {
             return;
         }
 
+        app_reset_repeat_cmd();
         button_clear_sleep();
 
         apsCleanToStopSecondClock();

@@ -7,6 +7,7 @@
 #include "bdb.h"
 #include "ota.h"
 
+#include "app_repeat_cmd.h"
 #include "app_scene.h"
 #include "app_led.h"
 #include "app_device.h"

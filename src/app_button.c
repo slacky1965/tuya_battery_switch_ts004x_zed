@@ -214,7 +214,7 @@ static void read_button_level(uint8_t i) {
                 }
 
             }
-            clearSleepTimer();
+            if (!repeat_cmd_num) clearSleepTimer();
         }
 
         button->counter = 0;
@@ -225,7 +225,7 @@ static void read_button_level(uint8_t i) {
         button->hold = HOLD_FIX;
         button->counter = 0;
         button->pressed = false;
-        clearSleepTimer();
+        if (!repeat_cmd_num) clearSleepTimer();
     }
 }
 
@@ -428,7 +428,7 @@ static void read_button_scene(uint8_t i) {
             if (timerButtonFindBindEvt) TL_ZB_TIMER_CANCEL(&timerButtonFindBindEvt);
             timerButtonFindBindEvt = TL_ZB_TIMER_SCHEDULE(clearButtonFindBindFlagCb, NULL, TIMEOUT_3SEC);
         }
-        clearSleepTimer();
+        if (!repeat_cmd_num) clearSleepTimer();
         button->counter = 0;
         button->pressed = false;
         button->released = false;
@@ -550,7 +550,7 @@ static void read_button_toggle(uint8_t i) {
             }
             timerFactoryResetEvt = TL_ZB_TIMER_SCHEDULE(factoryResetCb, NULL, TIMEOUT_3SEC);
 #if UART_PRINTF_MODE && DEBUG_BUTTON_EN
-        } else if (button->counter == 2) {
+        } else if (button->counter == 3) {
             aps_binding_entry_t *bind_tbl = bindTblEntryGet();
             for (uint8_t j = 0; j < APS_BINDING_TABLE_NUM; j++) {
                 if (bind_tbl->used) {
@@ -576,7 +576,7 @@ static void read_button_toggle(uint8_t i) {
 #endif
         }
 
-        clearSleepTimer();
+        if (!repeat_cmd_num) clearSleepTimer();
         button->counter = 0;
         button->pressed = false;
         button->released = false;
@@ -585,7 +585,7 @@ static void read_button_toggle(uint8_t i) {
         button->hold = HOLD_FIX;
         button->counter = 0;
         button->pressed = false;
-        clearSleepTimer();
+        if (!repeat_cmd_num) clearSleepTimer();
     }
 }
 
@@ -658,3 +658,19 @@ void button_init() {
         button->pressed_time = clock_time();
     }
 }
+
+//void clearButtonSleepTimer() {
+//    if (timerClearSleepEvt) {
+//        TL_ZB_TIMER_CANCEL(&timerClearSleepEvt);
+//    }
+//    timerClearSleepEvt = TL_ZB_TIMER_SCHEDULE(clearSleepCb, NULL, TIMEOUT_100MS);
+//}
+
+void clearButtonSleepTimer() {
+
+    if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
+        g_appCtx.not_sleep = false;
+    }
+
+}
+

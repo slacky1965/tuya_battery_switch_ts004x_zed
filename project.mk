@@ -15,6 +15,7 @@ $(OUT_PATH)/$(SRC_PATH)/zigbee/zcl/zcl_reporting.o \
 $(OUT_PATH)/$(SRC_PATH)/zigbee/bdb/bdb.o \
 $(OUT_PATH)/$(SRC_PATH)/zigbee/zdo/zdp.o \
 $(OUT_PATH)/$(SRC_PATH)/app_device.o \
+$(OUT_PATH)/$(SRC_PATH)/app_repeat_cmd.o \
 $(OUT_PATH)/$(SRC_PATH)/app_button.o \
 $(OUT_PATH)/$(SRC_PATH)/app_led.o \
 $(OUT_PATH)/$(SRC_PATH)/app_on_off.o \

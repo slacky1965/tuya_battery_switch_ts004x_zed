@@ -57,7 +57,7 @@ static void app_zclCfgReportCmd(uint8_t endPoint, uint16_t clusterId, zclCfgRepo
 static void app_zclCfgReportRspCmd(uint16_t clusterId, zclCfgReportRspCmd_t *pCfgReportRspCmd);
 static void app_zclReportCmd(uint16_t clusterId, zclReportCmd_t *pReportCmd);
 #endif
-static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd);
+static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd, uint8_t seq_num, apsdeDataInd_t *msg);
 
 
 /**********************************************************************
@@ -118,7 +118,7 @@ void app_zclProcessIncomingMsg(zclIncoming_t *pInHdlrMsg)
 			break;
 #endif
 		case ZCL_CMD_DEFAULT_RSP:
-			app_zclDfltRspCmd(cluster, pInHdlrMsg->attrCmd);
+            app_zclDfltRspCmd(cluster, pInHdlrMsg->attrCmd, pInHdlrMsg->hdr.seqNum, pInHdlrMsg->msg);
 			break;
 		default:
 			break;
@@ -279,9 +279,15 @@ static void app_zclWriteReqCmd(uint8_t endPoint, uint16_t clusterId, zclWriteCmd
  *
  * @return  None
  */
-static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd)
+static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd, uint8_t seq_num, apsdeDataInd_t *msg)
 {
     APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclDfltRspCmd\r\n");
+
+//    APP_DEBUG(DEBUG_ZCL_CB_EN, "dst_addr_mode: %d, dst_addr: 0x%04x\r\n", msg->indInfo.dst_addr_mode, msg->indInfo.dst_addr);
+
+    if (clusterId == ZCL_CLUSTER_GEN_ON_OFF) {
+//        set_send_dev_onoff_cmd(seq_num);
+    }
 
 }
 
