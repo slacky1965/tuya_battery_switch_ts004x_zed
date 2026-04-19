@@ -36,7 +36,8 @@ static int32_t clearSleepCb(void *args) {
 
     APP_DEBUG(DEBUG_PM_EN, "clearSleepCb\r\n");
 
-    if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
+    if ((!g_appCtx.timerSetPollRateEvt || !g_appCtx.timerSetPollRateEvt->used || g_appCtx.timerSetPollRateEvt->isBusy) &&
+            !g_appCtx.ota && !buttonFindBindFlag) {
         g_appCtx.not_sleep = false;
     }
 
@@ -668,9 +669,9 @@ void button_init() {
 
 void clearButtonSleepTimer() {
 
-    if (!g_appCtx.timerSetPollRateEvt && !g_appCtx.ota) {
+    if ((!g_appCtx.timerSetPollRateEvt || !g_appCtx.timerSetPollRateEvt->used ||  g_appCtx.timerSetPollRateEvt->isBusy) &&
+            !g_appCtx.ota && !buttonFindBindFlag) {
         g_appCtx.not_sleep = false;
     }
-
 }
 
