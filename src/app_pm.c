@@ -121,7 +121,7 @@ void app_lowPowerEnter() {
 
     app_wakeupPinLevelChange();
 
-    if (g_appCtx.not_sleep) {
+    if (g_appCtx.not_sleep || findbind->timerClearFindBindFlagEvt) {
         /* SDK deep sleep with SRAM retention */
 #if DEBUG_PM_EN
         app_drv_pm_lowPowerEnter();
@@ -142,6 +142,7 @@ void app_lowPowerEnter() {
         }
 
         app_reset_repeat_cmd();
+        app_timerRepeatCmdNumClearStop();
         button_clear_sleep();
 
         apsCleanToStopSecondClock();
