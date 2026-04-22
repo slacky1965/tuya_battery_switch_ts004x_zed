@@ -63,7 +63,7 @@ static void button_factory_reset_start() {
     g_appCtx.net_steer_start = true;
     TL_ZB_TIMER_SCHEDULE(net_steer_start_offCb, NULL, TIMEOUT_1p5MIN);
     light_blink_stop();
-    light_blink_start(90, 100, 1000);
+    light_blink_start(90, 30, 750);
     app_setPollRate(TIMEOUT_2MIN);
 }
 
