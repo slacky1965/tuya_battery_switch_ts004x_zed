@@ -50,7 +50,6 @@ void app_cmdOnOff(uint8_t ep, uint8_t command) {
             app_addr.addr_short = grEntry->group_addr;
 //            app_add_repeat_cmd(ZCL_CLUSTER_GEN_ON_OFF, ep, grEntry->n_endpoints, APS_SHORT_GROUPADDR_NOEP, app_addr, command, NULL);
             st = cmdOnOffSend(ep, &dstEpInfo, command);
-            repeat_cmd_num++;
             APP_DEBUG(DEBUG_ONOFF_EN, "OnOff in groups. cmd: %d, src_ep: %d, dst_ep: %d, addr: 0x%04x, status: %d\r\n",
                     (command == 0)?"Off":(command == 1)?"On":"Toggle", ep, grEntry->n_endpoints, grEntry->group_addr, st);
         }
@@ -77,7 +76,6 @@ void app_cmdOnOff(uint8_t ep, uint8_t command) {
                 app_add_repeat_cmd(ZCL_CLUSTER_GEN_ON_OFF, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, command, NULL);
             }
             st = cmdOnOffSend(ep, &dstEpInfo, command);
-            repeat_cmd_num++;
 #if DEBUG_ONOFF_EN
             APP_DEBUG(DEBUG_ONOFF_EN, "OnOff for bind. cmd: %s, src_ep: %d, dst_ep: %d, clId: 0x%04x, addrMode: %d - %s, ",
                     (command == 0)?"Off":(command == 1)?"On":"Toggle",

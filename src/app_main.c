@@ -121,9 +121,7 @@ static void afApsAckCb(void *args) {
 #endif
 
     if (r_cmd) {
-        r_cmd->used = false;
         if (pApsDataCnf->status != APS_STATUS_SUCCESS && pApsDataCnf->status != APS_STATUS_NO_ACK) {
-            if (repeat_cmd_num > 0) repeat_cmd_num--;
             if (pApsDataCnf->dstAddrMode != APS_SHORT_GROUPADDR_NOEP) {
                 switch(pApsDataCnf->clusterId) {
                     case ZCL_CLUSTER_GEN_ON_OFF:
@@ -139,10 +137,10 @@ static void afApsAckCb(void *args) {
                         break;
                 }
             }
-            return;
         }
+        r_cmd->used = false;
+        if (repeat_cmd_num > 0) repeat_cmd_num--;
     }
-    if (repeat_cmd_num > 0) repeat_cmd_num--;
     if (repeat_cmd_num == 0) clearButtonSleepTimer();
 }
 

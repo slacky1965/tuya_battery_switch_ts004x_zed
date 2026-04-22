@@ -51,6 +51,7 @@ typedef struct {
     uint8_t  oriSta;     //original state before blink
     uint8_t  sta;        //current state in blink
     uint8_t  times;      //blink times
+    bool     timer_stop;
 
 //    button_t button[MAX_BUTTON_NUM];
 //    u8  keyPressed;

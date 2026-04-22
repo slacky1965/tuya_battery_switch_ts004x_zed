@@ -39,7 +39,6 @@ void app_scene_send(uint8_t ep) {
                     memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                     dstEp = bind_tbl->dstExtAddrInfo.dstEp;
                 }
-                repeat_cmd_num++;
                 app_add_repeat_cmd(ZCL_CLUSTER_GEN_SCENES, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_SCENE_RECALL_SCENE, &recallScene);
                 st = zcl_scene_recallSceneCmd(ep, &dstEpInfo, TRUE, &recallScene);
 #if DEBUG_SCENE_EN

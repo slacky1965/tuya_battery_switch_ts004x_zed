@@ -29,5 +29,6 @@ bool app_add_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t add
 void app_del_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t addrMode, app_addr_t addr);
 repeat_cmd_t *app_find_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t addrMode, app_addr_t addr);
 void app_reset_repeat_cmd();
+void app_timerRepeatCmdNumClearStop();
 
 #endif /* SRC_INCLUDE_APP_REPEAT_CMD_H_ */

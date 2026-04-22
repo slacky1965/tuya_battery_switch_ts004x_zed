@@ -57,7 +57,6 @@ void app_move_to_level(uint8_t ep, uint8_t up_down) {
                 memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                 dstEp = bind_tbl->dstExtAddrInfo.dstEp;
             }
-            repeat_cmd_num++;
             if (up_down == LEVEL_MOVE_UP) {
                 app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_LEVEL_MOVE_TO_LEVEL_WITH_ON_OFF, &move2Level);
                 st = zcl_level_move2levelWithOnOffCmd(ep, &dstEpInfo, TRUE, &move2Level);
@@ -143,7 +142,6 @@ void app_move_level(uint8_t ep, uint8_t up_down) {
                 memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                 dstEp = bind_tbl->dstExtAddrInfo.dstEp;
             }
-            repeat_cmd_num++;
             app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_LEVEL_MOVE_WITH_ON_OFF, &move);
             st = zcl_level_moveWithOnOffCmd(ep, &dstEpInfo, TRUE, &move);
 #if DEBUG_LEVEL_EN
@@ -221,7 +219,6 @@ void app_stop_level(uint8_t ep) {
                 memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                 dstEp = bind_tbl->dstExtAddrInfo.dstEp;
             }
-            repeat_cmd_num++;
             app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_LEVEL_STOP, &stop);
             st = zcl_level_stopCmd(ep, &dstEpInfo, TRUE, &stop);
 #if DEBUG_LEVEL_EN
@@ -301,7 +298,6 @@ void app_step_level(uint8_t ep, uint8_t up_down) {
                 memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                 dstEp = bind_tbl->dstExtAddrInfo.dstEp;
             }
-            repeat_cmd_num++;
             app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_LEVEL_STEP, &step);
             st = zcl_level_stepWithOnOffCmd(ep, &dstEpInfo, TRUE, &step);
 #if DEBUG_LEVEL_EN

@@ -1,8 +1,26 @@
 #include "app_main.h"
 
+static ev_timer_event_t *timerRepeatCmdNumClearEvt = NULL;
 static repeat_cmd_t repeat_cmd[REPEAT_CMD_NUM];
 uint8_t repeat_cmd_num = 0;
 
+static int32_t timerRepeatCmdNumClearCb(void *args) {
+    APP_DEBUG(DEBUG_REPEAT_EN, "timerRepeatCmdNumClearCb()\r\n");
+    repeat_cmd_num = 0;
+    timerRepeatCmdNumClearEvt = NULL;
+    return -1;
+}
+
+void app_timerRepeatCmdNumClearStop() {
+    uint8_t ret = 0;
+    repeat_cmd_num = 0;
+    if (timerRepeatCmdNumClearEvt) {
+        ret = TL_ZB_TIMER_CANCEL(&timerRepeatCmdNumClearEvt);
+        if (ret == NO_TIMER_AVAIL || ret == SUCCESS) {
+            g_appCtx.timerLedEvt = NULL;
+        }
+    }
+}
 repeat_cmd_t *app_find_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t addrMode, app_addr_t addr) {
 
     for (uint8_t i = 0; i < REPEAT_CMD_NUM; i++) {
@@ -52,6 +70,7 @@ bool app_add_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t add
     APP_DEBUG(DEBUG_REPEAT_EN, "clId: 0x%04x, srcEp: %d, dstEp: %d, addrMode: %d\r\n", clId, srcEp, dstEp, addrMode);
     for (uint8_t i = 0; i < REPEAT_CMD_NUM; i++) {
         if (!repeat_cmd[i].used) {
+            repeat_cmd_num++;
             repeat_cmd[i].used = true;
             repeat_cmd[i].clId = clId;
             repeat_cmd[i].srcEp = srcEp;
@@ -82,6 +101,12 @@ bool app_add_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t add
                 } else if (clId == ZCL_CLUSTER_GEN_SCENES) {
                     memcpy(&repeat_cmd[i].recallScene, (recallScene_t*)args, sizeof(recallScene_t));
                 }
+            }
+            if (repeat_cmd_num == 1) {
+                if (timerRepeatCmdNumClearEvt) {
+                    TL_ZB_TIMER_CANCEL(&timerRepeatCmdNumClearEvt);
+                }
+                timerRepeatCmdNumClearEvt = TL_ZB_TIMER_SCHEDULE(timerRepeatCmdNumClearCb, NULL, TIMEOUT_20SEC);
             }
             return true;
         }
