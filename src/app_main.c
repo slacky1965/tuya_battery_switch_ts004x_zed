@@ -96,13 +96,11 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
 static void afApsAckCb(void *args) {
 
     apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)args;
-    app_addr_t app_addr;
-    memcpy(&app_addr, &pApsDataCnf->dstAddr, sizeof(app_addr_t));
     repeat_cmd_t *r_cmd = app_find_repeat_cmd(pApsDataCnf->clusterId,
                                               pApsDataCnf->srcEndpoint,
                                               pApsDataCnf->dstEndpoint,
                                               pApsDataCnf->dstAddrMode,
-                                              app_addr);
+                                              (tl_zb_addr_t*)&pApsDataCnf->dstAddr);
 #if UART_PRINTF_MODE
     APP_DEBUG(DEBUG_REPEAT_EN, "afApsAckCb() - status: 0x%02x, clId: 0x%04x, src_ep: %d, dst_ep: %d, ",
             pApsDataCnf->status, pApsDataCnf->clusterId, pApsDataCnf->srcEndpoint, pApsDataCnf->dstEndpoint);
@@ -121,7 +119,7 @@ static void afApsAckCb(void *args) {
 #endif
 
     if (r_cmd) {
-        if (pApsDataCnf->status != APS_STATUS_SUCCESS && pApsDataCnf->status != APS_STATUS_NO_ACK) {
+        if (pApsDataCnf->status != APS_STATUS_SUCCESS) {
             if (pApsDataCnf->dstAddrMode != APS_SHORT_GROUPADDR_NOEP) {
                 switch(pApsDataCnf->clusterId) {
                     case ZCL_CLUSTER_GEN_ON_OFF:
@@ -187,22 +185,32 @@ void user_app_init(void)
 
     /* register endPoint */
     af_endpointRegister(APP_ENDPOINT1, (af_simple_descriptor_t *)&app_ep1Desc, zcl_rx_handler, afApsAckCb);
-    af_endpointRegister(APP_ENDPOINT2, (af_simple_descriptor_t *)&app_ep2Desc, zcl_rx_handler, afApsAckCb);
-    af_endpointRegister(APP_ENDPOINT3, (af_simple_descriptor_t *)&app_ep3Desc, zcl_rx_handler, afApsAckCb);
-    af_endpointRegister(APP_ENDPOINT4, (af_simple_descriptor_t *)&app_ep4Desc, zcl_rx_handler, afApsAckCb);
-    af_endpointRegister(APP_ENDPOINT5, (af_simple_descriptor_t *)&app_ep5Desc, zcl_rx_handler, afApsAckCb);
-    af_endpointRegister(APP_ENDPOINT6, (af_simple_descriptor_t *)&app_ep6Desc, zcl_rx_handler, afApsAckCb);
+    if (device_button_model > DEVICE_BUTTON_1)
+        af_endpointRegister(APP_ENDPOINT2, (af_simple_descriptor_t *)&app_ep2Desc, zcl_rx_handler, afApsAckCb);
+    if (device_button_model > DEVICE_BUTTON_2)
+        af_endpointRegister(APP_ENDPOINT3, (af_simple_descriptor_t *)&app_ep3Desc, zcl_rx_handler, afApsAckCb);
+    if (device_button_model > DEVICE_BUTTON_3)
+        af_endpointRegister(APP_ENDPOINT4, (af_simple_descriptor_t *)&app_ep4Desc, zcl_rx_handler, afApsAckCb);
+    if (device_button_model > DEVICE_BUTTON_4)
+        af_endpointRegister(APP_ENDPOINT5, (af_simple_descriptor_t *)&app_ep5Desc, zcl_rx_handler, afApsAckCb);
+    if (device_button_model > DEVICE_BUTTON_5)
+        af_endpointRegister(APP_ENDPOINT6, (af_simple_descriptor_t *)&app_ep6Desc, zcl_rx_handler, afApsAckCb);
 
     zcl_reportingTabInit();
     device_settings_restore();
 
     /* Register ZCL specific cluster information */
     zcl_register(APP_ENDPOINT1, APP_EP1_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp1ClusterList);
-    zcl_register(APP_ENDPOINT2, APP_EP2_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp2ClusterList);
-    zcl_register(APP_ENDPOINT3, APP_EP3_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp3ClusterList);
-    zcl_register(APP_ENDPOINT4, APP_EP4_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp4ClusterList);
-    zcl_register(APP_ENDPOINT5, APP_EP5_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp5ClusterList);
-    zcl_register(APP_ENDPOINT6, APP_EP6_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp6ClusterList);
+    if (device_button_model > DEVICE_BUTTON_1)
+        zcl_register(APP_ENDPOINT2, APP_EP2_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp2ClusterList);
+    if (device_button_model > DEVICE_BUTTON_2)
+        zcl_register(APP_ENDPOINT3, APP_EP3_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp3ClusterList);
+    if (device_button_model > DEVICE_BUTTON_3)
+        zcl_register(APP_ENDPOINT4, APP_EP4_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp4ClusterList);
+    if (device_button_model > DEVICE_BUTTON_4)
+        zcl_register(APP_ENDPOINT5, APP_EP5_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp5ClusterList);
+    if (device_button_model > DEVICE_BUTTON_5)
+        zcl_register(APP_ENDPOINT6, APP_EP6_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp6ClusterList);
 
 #if ZCL_OTA_SUPPORT
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&app_ep1Desc, &app_otaInfo, &app_otaCb);
