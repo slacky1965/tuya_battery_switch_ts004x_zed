@@ -35,8 +35,9 @@
 #define TIMEOUT_15SEC       15   * 1000     /* timeout 15 sec   */
 #define TIMEOUT_20SEC       20   * 1000     /* timeout 20 sec   */
 #define TIMEOUT_30SEC       30   * 1000     /* timeout 30 sec   */
-#define TIMEOUT_1p5MIN      90   * 1000     /* timeout 1.5 min  */
+#define TIMEOUT_40SEC       40   * 1000     /* timeout 40 sec   */
 #define TIMEOUT_1MIN        60   * 1000     /* timeout 1 min    */
+#define TIMEOUT_1p5MIN      90   * 1000     /* timeout 1.5 min  */
 #define TIMEOUT_2MIN        120  * 1000     /* timeout 2 min    */
 #define TIMEOUT_3MIN        180  * 1000     /* timeout 3 min    */
 #define TIMEOUT_5MIN        300  * 1000     /* timeout 5 min    */
@@ -67,7 +68,7 @@ int32_t poll_rateAppCb(void *arg);
 int32_t delayedMcuResetCb(void *arg);
 int32_t delayedFactoryResetCb(void *arg);
 int32_t delayedFullResetCb(void *arg);
-void app_setPollRate(uint32_t sec);
+void app_setPollRate(uint32_t sec, uint8_t poll_rate);
 int32_t net_steer_start_offCb(void *args);
 uint8_t checksum(uint8_t *data, uint16_t length);
 
