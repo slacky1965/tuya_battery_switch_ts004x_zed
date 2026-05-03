@@ -285,9 +285,9 @@ static void app_zclDfltRspCmd(uint16_t clusterId, zclDefaultRspCmd_t *pDftRspCmd
 
 //    APP_DEBUG(DEBUG_ZCL_CB_EN, "dst_addr_mode: %d, dst_addr: 0x%04x\r\n", msg->indInfo.dst_addr_mode, msg->indInfo.dst_addr);
 
-    if (clusterId == ZCL_CLUSTER_GEN_ON_OFF) {
-//        set_send_dev_onoff_cmd(seq_num);
-    }
+//    if (clusterId == ZCL_CLUSTER_GEN_ON_OFF) {
+////        set_send_dev_onoff_cmd(seq_num);
+//    }
 
 }
 
@@ -328,7 +328,7 @@ APP_DEBUG(DEBUG_ZCL_CB_EN, "app_zclCfgReportCmd\r\n");
         }
     }
 
-    app_setPollRate(TIMEOUT_30SEC);
+    app_setPollRate(TIMEOUT_30SEC, 3);
 }
 
 /*********************************************************************
