@@ -10,7 +10,6 @@ void app_move_to_level(uint8_t ep, uint8_t up_down) {
     move2Level.transitionTime = 25;
     move2Level.optPresent = 0;
 
-    app_addr_t app_addr;
     uint8_t dstEp = 0;
 
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
@@ -54,14 +53,13 @@ void app_move_to_level(uint8_t ep, uint8_t up_down) {
                 dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
                 dstEpInfo.dstEp = bind_tbl->dstExtAddrInfo.dstEp;
                 memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
-                memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                 dstEp = bind_tbl->dstExtAddrInfo.dstEp;
             }
             if (up_down == LEVEL_MOVE_UP) {
-                app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_LEVEL_MOVE_TO_LEVEL_WITH_ON_OFF, &move2Level);
+                app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, dstEpInfo.dstAddr, ZCL_CMD_LEVEL_MOVE_TO_LEVEL_WITH_ON_OFF, &move2Level);
                 st = zcl_level_move2levelWithOnOffCmd(ep, &dstEpInfo, TRUE, &move2Level);
             } else {
-                app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_LEVEL_MOVE_TO_LEVEL, &move2Level);
+                app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, dstEpInfo.dstAddr, ZCL_CMD_LEVEL_MOVE_TO_LEVEL, &move2Level);
                 st = zcl_level_move2levelCmd(ep, &dstEpInfo, TRUE, &move2Level);
             }
 #if DEBUG_LEVEL_EN
@@ -99,7 +97,6 @@ void app_move_level(uint8_t ep, uint8_t up_down) {
     move.rate = device_settings.defaultMoveRate[ep-1];
     move.optPresent = 0;
 
-    app_addr_t app_addr;
     uint8_t dstEp = 0;
 
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
@@ -139,10 +136,9 @@ void app_move_level(uint8_t ep, uint8_t up_down) {
                 dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
                 dstEpInfo.dstEp = bind_tbl->dstExtAddrInfo.dstEp;
                 memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
-                memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                 dstEp = bind_tbl->dstExtAddrInfo.dstEp;
             }
-            app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_LEVEL_MOVE_WITH_ON_OFF, &move);
+            app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, dstEpInfo.dstAddr, ZCL_CMD_LEVEL_MOVE_WITH_ON_OFF, &move);
             st = zcl_level_moveWithOnOffCmd(ep, &dstEpInfo, TRUE, &move);
 #if DEBUG_LEVEL_EN
             APP_DEBUG(DEBUG_LEVEL_EN, "Level move %s for bind with rate: %d, ep: %d, clId: 0x%04x, addrMode: %d - %s, ",
@@ -176,7 +172,6 @@ void app_stop_level(uint8_t ep) {
     stop_t stop;
     stop.optPresent = 0;
 
-    app_addr_t app_addr;
     uint8_t dstEp = 0;
 
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
@@ -216,10 +211,9 @@ void app_stop_level(uint8_t ep) {
                 dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
                 dstEpInfo.dstEp = bind_tbl->dstExtAddrInfo.dstEp;
                 memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
-                memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                 dstEp = bind_tbl->dstExtAddrInfo.dstEp;
             }
-            app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_LEVEL_STOP, &stop);
+            app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, dstEpInfo.dstAddr, ZCL_CMD_LEVEL_STOP, &stop);
             st = zcl_level_stopCmd(ep, &dstEpInfo, TRUE, &stop);
 #if DEBUG_LEVEL_EN
             APP_DEBUG(DEBUG_LEVEL_EN, "Level stop for bind, ep: %d, clId: 0x%04x, addrMode: %d - %s, ",
@@ -255,7 +249,6 @@ void app_step_level(uint8_t ep, uint8_t up_down) {
     step.transitionTime = 1;
     step.optPresent = 0;
 
-    app_addr_t app_addr;
     uint8_t dstEp = 0;
 
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
@@ -295,10 +288,9 @@ void app_step_level(uint8_t ep, uint8_t up_down) {
                 dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
                 dstEpInfo.dstEp = bind_tbl->dstExtAddrInfo.dstEp;
                 memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
-                memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                 dstEp = bind_tbl->dstExtAddrInfo.dstEp;
             }
-            app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_LEVEL_STEP, &step);
+            app_add_repeat_cmd(ZCL_CLUSTER_GEN_LEVEL_CONTROL, ep, dstEp, dstEpInfo.dstAddrMode, dstEpInfo.dstAddr, ZCL_CMD_LEVEL_STEP, &step);
             st = zcl_level_stepWithOnOffCmd(ep, &dstEpInfo, TRUE, &step);
 #if DEBUG_LEVEL_EN
             APP_DEBUG(DEBUG_LEVEL_EN, "Level step %s for bind with size: %d, ep: %d, clId: 0x%04x, addrMode: %d - %s, ",
@@ -339,10 +331,10 @@ int32_t app_repeatCmdLevel(void *args) {
 
     dstEpInfo.dstAddrMode = r_cmd->dstAddrMode;
     if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
-        dstEpInfo.dstAddr.shortAddr = r_cmd->dstAddr.addr_short;
+        dstEpInfo.dstAddr.shortAddr = r_cmd->dstAddr.shortAddr;
     } else {
         dstEpInfo.dstEp = r_cmd->dstEp;
-        memcpy(dstEpInfo.dstAddr.extAddr, r_cmd->dstAddr.addr_long, sizeof(extAddr_t));
+        memcpy(dstEpInfo.dstAddr.extAddr, r_cmd->dstAddr.extAddr, sizeof(extAddr_t));
     }
 
     switch(r_cmd->cmdId) {

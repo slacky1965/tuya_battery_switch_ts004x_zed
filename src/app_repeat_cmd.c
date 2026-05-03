@@ -17,23 +17,23 @@ void app_timerRepeatCmdNumClearStop() {
     if (timerRepeatCmdNumClearEvt) {
         ret = TL_ZB_TIMER_CANCEL(&timerRepeatCmdNumClearEvt);
         if (ret == NO_TIMER_AVAIL || ret == SUCCESS) {
-            g_appCtx.timerLedEvt = NULL;
+            timerRepeatCmdNumClearEvt = NULL;
         }
     }
 }
-repeat_cmd_t *app_find_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t addrMode, app_addr_t addr) {
+repeat_cmd_t *app_find_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t addrMode, tl_zb_addr_t *addr) {
 
     for (uint8_t i = 0; i < REPEAT_CMD_NUM; i++) {
         if (repeat_cmd[i].used) {
             if (repeat_cmd[i].clId == clId && repeat_cmd[i].srcEp == srcEp &&
                     repeat_cmd[i].dstEp == dstEp && repeat_cmd[i].dstAddrMode == addrMode) {
                 if (repeat_cmd[i].dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
-                    if (repeat_cmd[i].dstAddr.addr_short == addr.addr_short) {
+                    if (repeat_cmd[i].dstAddr.shortAddr == addr->shortAddr) {
                         APP_DEBUG(DEBUG_REPEAT_EN, "i: %d\r\n", i);
                         return &repeat_cmd[i];
                     }
                 } else {
-                    if (ZB_64BIT_ADDR_CMP(repeat_cmd[i].dstAddr.addr_long, addr.addr_long)) {
+                    if (ZB_64BIT_ADDR_CMP(repeat_cmd[i].dstAddr.extAddr, addr->extAddr)) {
                         APP_DEBUG(DEBUG_REPEAT_EN, "i: %d\r\n", i);
                         return &repeat_cmd[i];
                     }
@@ -45,18 +45,18 @@ repeat_cmd_t *app_find_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, u
     return NULL;
 }
 
-void app_del_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t addrMode, app_addr_t addr) {
+void app_del_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t addrMode, tl_zb_addr_t addr) {
 
     for (uint8_t i = 0; i < REPEAT_CMD_NUM; i++) {
         if (repeat_cmd[i].used) {
             if (repeat_cmd[i].clId == clId && repeat_cmd[i].srcEp == srcEp &&
                     repeat_cmd[i].dstEp == dstEp && repeat_cmd[i].dstAddrMode == addrMode) {
                 if (repeat_cmd[i].dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
-                    if (repeat_cmd[i].dstAddr.addr_short == addr.addr_short) {
+                    if (repeat_cmd[i].dstAddr.shortAddr == addr.shortAddr) {
                         repeat_cmd[i].used = false;
                     }
                 } else {
-                    if (ZB_64BIT_ADDR_CMP(repeat_cmd[i].dstAddr.addr_long, addr.addr_long)) {
+                    if (ZB_64BIT_ADDR_CMP(repeat_cmd[i].dstAddr.extAddr, addr.extAddr)) {
                         repeat_cmd[i].used = false;
                     }
                 }
@@ -65,7 +65,7 @@ void app_del_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t add
     }
 }
 
-bool app_add_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t addrMode, app_addr_t addr, uint8_t cmdId, void *args) {
+bool app_add_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t addrMode, tl_zb_addr_t addr, uint8_t cmdId, void *args) {
 
     APP_DEBUG(DEBUG_REPEAT_EN, "clId: 0x%04x, srcEp: %d, dstEp: %d, addrMode: %d\r\n", clId, srcEp, dstEp, addrMode);
     for (uint8_t i = 0; i < REPEAT_CMD_NUM; i++) {
@@ -76,7 +76,7 @@ bool app_add_repeat_cmd(uint16_t clId, uint8_t srcEp, uint8_t dstEp, uint8_t add
             repeat_cmd[i].srcEp = srcEp;
             repeat_cmd[i].dstEp = dstEp;
             repeat_cmd[i].dstAddrMode = addrMode;
-            memcpy(&repeat_cmd[i].dstAddr, &addr, sizeof(app_addr_t));
+            memcpy(&repeat_cmd[i].dstAddr, &addr, sizeof(tl_zb_addr_t));
             repeat_cmd[i].cmdId = cmdId;
             if (args) {
                 if (clId == ZCL_CLUSTER_GEN_LEVEL_CONTROL) {

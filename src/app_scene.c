@@ -5,7 +5,6 @@ void app_scene_send(uint8_t ep) {
     status_t st;
     uint16_t addrGroup = device_settings.scene[ep-1].groupId;
 
-    app_addr_t app_addr;
     uint8_t dstEp = 0;
 
     epInfo_t dstEpInfo;
@@ -36,10 +35,9 @@ void app_scene_send(uint8_t ep) {
                     dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
                     dstEpInfo.dstEp = bind_tbl->dstExtAddrInfo.dstEp;
                     memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
-                    memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                     dstEp = bind_tbl->dstExtAddrInfo.dstEp;
                 }
-                app_add_repeat_cmd(ZCL_CLUSTER_GEN_SCENES, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, ZCL_CMD_SCENE_RECALL_SCENE, &recallScene);
+                app_add_repeat_cmd(ZCL_CLUSTER_GEN_SCENES, ep, dstEp, dstEpInfo.dstAddrMode, dstEpInfo.dstAddr, ZCL_CMD_SCENE_RECALL_SCENE, &recallScene);
                 st = zcl_scene_recallSceneCmd(ep, &dstEpInfo, TRUE, &recallScene);
 #if DEBUG_SCENE_EN
                 APP_DEBUG(DEBUG_SCENE_EN, "Recall scene command, ep: %d, clId: 0x%04x, addrMode: %d - %s, ",
@@ -81,10 +79,10 @@ int32_t app_repeatCmdScene(void *args) {
 
     dstEpInfo.dstAddrMode = r_cmd->dstAddrMode;
     if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
-        dstEpInfo.dstAddr.shortAddr = r_cmd->dstAddr.addr_short;
+        dstEpInfo.dstAddr.shortAddr = r_cmd->dstAddr.shortAddr;
     } else {
         dstEpInfo.dstEp = r_cmd->dstEp;
-        memcpy(dstEpInfo.dstAddr.extAddr, r_cmd->dstAddr.addr_long, sizeof(extAddr_t));
+        memcpy(dstEpInfo.dstAddr.extAddr, r_cmd->dstAddr.extAddr, sizeof(extAddr_t));
     }
     zcl_scene_recallSceneCmd(r_cmd->srcEp, &dstEpInfo, TRUE, &r_cmd->recallScene);
 

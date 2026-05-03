@@ -33,7 +33,6 @@ void app_cmdOnOff(uint8_t ep, uint8_t command) {
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
     dstEpInfo.profileId = HA_PROFILE_ID;
 
-    app_addr_t app_addr;
     uint8_t dstEp = 0;
 
     uint16_t groupList[APS_GROUP_TABLE_NUM];
@@ -47,8 +46,6 @@ void app_cmdOnOff(uint8_t ep, uint8_t command) {
         aps_group_tbl_ent_t *grEntry = aps_group_search(groupList[i], ep);
         if (grEntry) {
             dstEpInfo.dstAddr.shortAddr = grEntry->group_addr;
-            app_addr.addr_short = grEntry->group_addr;
-//            app_add_repeat_cmd(ZCL_CLUSTER_GEN_ON_OFF, ep, grEntry->n_endpoints, APS_SHORT_GROUPADDR_NOEP, app_addr, command, NULL);
             st = cmdOnOffSend(ep, &dstEpInfo, command);
             APP_DEBUG(DEBUG_ONOFF_EN, "OnOff in groups. cmd: %d, src_ep: %d, dst_ep: %d, addr: 0x%04x, status: %d\r\n",
                     (command == 0)?"Off":(command == 1)?"On":"Toggle", ep, grEntry->n_endpoints, grEntry->group_addr, st);
@@ -71,9 +68,8 @@ void app_cmdOnOff(uint8_t ep, uint8_t command) {
                 dstEpInfo.dstAddrMode = APS_LONG_DSTADDR_WITHEP;
                 dstEpInfo.dstEp = bind_tbl->dstExtAddrInfo.dstEp;
                 memcpy(dstEpInfo.dstAddr.extAddr, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
-                memcpy(app_addr.addr_long, bind_tbl->dstExtAddrInfo.extAddr, sizeof(extAddr_t));
                 dstEp = bind_tbl->dstExtAddrInfo.dstEp;
-                app_add_repeat_cmd(ZCL_CLUSTER_GEN_ON_OFF, ep, dstEp, dstEpInfo.dstAddrMode, app_addr, command, NULL);
+                app_add_repeat_cmd(ZCL_CLUSTER_GEN_ON_OFF, ep, dstEp, dstEpInfo.dstAddrMode, dstEpInfo.dstAddr, command, NULL);
             }
             st = cmdOnOffSend(ep, &dstEpInfo, command);
 #if DEBUG_ONOFF_EN
@@ -116,10 +112,10 @@ int32_t app_repeatCmdOnOff(void *args) {
 
     dstEpInfo.dstAddrMode = r_cmd->dstAddrMode;
     if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
-        dstEpInfo.dstAddr.shortAddr = r_cmd->dstAddr.addr_short;
+        dstEpInfo.dstAddr.shortAddr = r_cmd->dstAddr.shortAddr;
     } else {
         dstEpInfo.dstEp = r_cmd->dstEp;
-        memcpy(dstEpInfo.dstAddr.extAddr, r_cmd->dstAddr.addr_long, sizeof(extAddr_t));
+        memcpy(dstEpInfo.dstAddr.extAddr, r_cmd->dstAddr.extAddr, sizeof(extAddr_t));
     }
     cmdOnOffSend(r_cmd->srcEp, &dstEpInfo, r_cmd->cmdId);
 
