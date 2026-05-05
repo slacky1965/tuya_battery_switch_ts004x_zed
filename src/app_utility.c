@@ -57,9 +57,9 @@ static int32_t set_pollRateCb(void *args) {
     return -1;
 }
 
-void app_setPollRate(uint32_t sec, uint8_t poll_rate) {
+void app_setPollRate(uint32_t ms, uint8_t poll_rate) {
 
-//    APP_DEBUG(DEBUG_PM_EN, "app_setPollRate(). sec: %d\r\n", sec);
+    APP_DEBUG(DEBUG_PM_EN, "app_setPollRate(). sec: %d\r\n", ms/1000);
 
     g_appCtx.not_sleep = true;
 
@@ -75,7 +75,7 @@ void app_setPollRate(uint32_t sec, uint8_t poll_rate) {
     if (g_appCtx.timerSetPollRateEvt) {
         TL_ZB_TIMER_CANCEL(&g_appCtx.timerSetPollRateEvt);
     }
-    g_appCtx.timerSetPollRateEvt = TL_ZB_TIMER_SCHEDULE(set_pollRateCb, NULL, sec);
+    g_appCtx.timerSetPollRateEvt = TL_ZB_TIMER_SCHEDULE(set_pollRateCb, NULL, ms);
 
 }
 
