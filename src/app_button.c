@@ -156,6 +156,7 @@ static void read_button_level(uint8_t i) {
                     button->counter = 1;
                     if (!zb_isDeviceJoinedNwk() && !zb_isDeviceFactoryNew()) {
                         zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+                        app_setPollRate(TIMEOUT_20SEC, 5);
                     }
                 }
                 button->hold_time = button->pressed_time = clock_time();
@@ -278,6 +279,7 @@ static void read_button_multifunction(uint8_t i) {
                     button->counter = 1;
                     if (!zb_isDeviceJoinedNwk() && !zb_isDeviceFactoryNew()) {
                         zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+                        app_setPollRate(TIMEOUT_20SEC, 5);
                     }
                 }
                 button->hold_time = button->pressed_time = clock_time();
@@ -393,6 +395,7 @@ static void read_button_scene(uint8_t i) {
                         app_scene_send(i+1);
                     } else if (!zb_isDeviceFactoryNew()) {
                         zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+                        app_setPollRate(TIMEOUT_20SEC, 5);
                     }
                 } else if (button->pressed && !clock_time_exceed(button->pressed_time, TIMEOUT_TICK_500MS)) {
                     button->counter++;
@@ -497,6 +500,7 @@ static void read_button_toggle(uint8_t i) {
                         app_cmdOnOff(i+1, cmd_onoff);
                     } else if (!zb_isDeviceFactoryNew()) {
                         zb_rejoinReq(zb_apsChannelMaskGet(), g_bdbAttrs.scanDuration);
+                        app_setPollRate(TIMEOUT_20SEC, 5);
                     }
                 } else if (button->pressed && !clock_time_exceed(button->pressed_time, TIMEOUT_TICK_500MS)) {
                     button->counter++;
