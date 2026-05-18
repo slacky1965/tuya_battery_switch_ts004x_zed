@@ -34,7 +34,7 @@ typedef struct {
 } zdp_funcList_t;
 
 void app_descriptorsIndicate(void *buf) {
-    app_setPollRate(TIMEOUT_40SEC, 1);
+    app_setPollRate(TIMEOUT_1MIN, 1);
     zdo_descriptorsIndicate(buf);
 }
 
