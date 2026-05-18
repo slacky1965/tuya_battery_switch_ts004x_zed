@@ -7,7 +7,8 @@
 #include "bdb.h"
 #include "ota.h"
 
-#include "app_repeat_cmd.h"
+#include "zcl_onoffSwitchCfg.h"
+#include "zcl_custom_attr.h"
 #include "app_scene.h"
 #include "app_led.h"
 #include "app_device.h"
@@ -20,8 +21,8 @@
 #include "app_utility.h"
 #include "app_on_off.h"
 #include "app_level.h"
-#include "zcl_custom_attr.h"
-#include "zcl_onoffSwitchCfg.h"
+#include "app_color_temp.h"
+#include "app_repeat_cmd.h"
 
 typedef struct {
     uint8_t keyType; /* CERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
@@ -89,6 +90,7 @@ status_t app_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdP
 status_t app_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 status_t app_msInputCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 status_t app_levelCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t app_colorCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
 void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);

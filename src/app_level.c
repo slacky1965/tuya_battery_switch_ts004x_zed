@@ -327,7 +327,6 @@ int32_t app_repeatCmdLevel(void *args) {
     epInfo_t dstEpInfo;
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
     dstEpInfo.profileId = HA_PROFILE_ID;
-    dstEpInfo.txOptions = APS_TX_OPT_ACK_TX;
 
     dstEpInfo.dstAddrMode = r_cmd->dstAddrMode;
     if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
@@ -340,17 +339,17 @@ int32_t app_repeatCmdLevel(void *args) {
     switch(r_cmd->cmdId) {
         case ZCL_CMD_LEVEL_MOVE_TO_LEVEL_WITH_ON_OFF:
         case ZCL_CMD_LEVEL_MOVE_TO_LEVEL:
-            zcl_level_move2level(r_cmd->srcEp, &dstEpInfo, TRUE, ZCL_SEQ_NUM, r_cmd->cmdId, &r_cmd->move2Level);
+            zcl_level_move2level(r_cmd->srcEp, &dstEpInfo, FALSE, ZCL_SEQ_NUM, r_cmd->cmdId, &r_cmd->move2Level);
             break;
         case ZCL_CMD_LEVEL_MOVE_WITH_ON_OFF:
         case ZCL_CMD_LEVEL_MOVE:
-            zcl_level_move(r_cmd->srcEp, &dstEpInfo, TRUE, ZCL_SEQ_NUM, r_cmd->cmdId, &r_cmd->move);
+            zcl_level_move(r_cmd->srcEp, &dstEpInfo, FALSE, ZCL_SEQ_NUM, r_cmd->cmdId, &r_cmd->level_move);
             break;
         case ZCL_CMD_LEVEL_STOP:
-            zcl_level_stop(r_cmd->srcEp, &dstEpInfo, TRUE, ZCL_SEQ_NUM, r_cmd->cmdId, &r_cmd->stop);
+            zcl_level_stop(r_cmd->srcEp, &dstEpInfo, FALSE, ZCL_SEQ_NUM, r_cmd->cmdId, &r_cmd->level_stop);
             break;
         case ZCL_CMD_LEVEL_STEP:
-            zcl_level_step(r_cmd->srcEp, &dstEpInfo, TRUE, ZCL_SEQ_NUM, r_cmd->cmdId, &r_cmd->step);
+            zcl_level_step(r_cmd->srcEp, &dstEpInfo, FALSE, ZCL_SEQ_NUM, r_cmd->cmdId, &r_cmd->level_step);
             break;
         default:
             break;

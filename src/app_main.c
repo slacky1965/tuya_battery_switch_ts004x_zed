@@ -123,13 +123,16 @@ static void afApsAckCb(void *args) {
             if (pApsDataCnf->dstAddrMode != APS_SHORT_GROUPADDR_NOEP) {
                 switch(pApsDataCnf->clusterId) {
                     case ZCL_CLUSTER_GEN_ON_OFF:
-                        TL_ZB_TIMER_SCHEDULE(app_repeatCmdOnOff, r_cmd, TIMEOUT_250MS);
+                        app_repeatCmdOnOff(r_cmd);
                         break;
                     case ZCL_CLUSTER_GEN_LEVEL_CONTROL:
-                        TL_ZB_TIMER_SCHEDULE(app_repeatCmdLevel, r_cmd, TIMEOUT_250MS);
+                        app_repeatCmdLevel(r_cmd);
                         break;
                     case ZCL_CLUSTER_GEN_SCENES:
-                        TL_ZB_TIMER_SCHEDULE(app_repeatCmdScene, r_cmd, TIMEOUT_250MS);
+                        app_repeatCmdScene(r_cmd);
+                        break;
+                    case ZCL_CLUSTER_LIGHTING_COLOR_CONTROL:
+                        app_repeatCmdColorCtrl(r_cmd);
                         break;
                     default:
                         break;
