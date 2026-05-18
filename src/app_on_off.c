@@ -108,7 +108,6 @@ int32_t app_repeatCmdOnOff(void *args) {
     epInfo_t dstEpInfo;
     TL_SETSTRUCTCONTENT(dstEpInfo, 0);
     dstEpInfo.profileId = HA_PROFILE_ID;
-    dstEpInfo.txOptions = APS_TX_OPT_ACK_TX;
 
     dstEpInfo.dstAddrMode = r_cmd->dstAddrMode;
     if (dstEpInfo.dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
@@ -117,7 +116,9 @@ int32_t app_repeatCmdOnOff(void *args) {
         dstEpInfo.dstEp = r_cmd->dstEp;
         memcpy(dstEpInfo.dstAddr.extAddr, r_cmd->dstAddr.extAddr, sizeof(extAddr_t));
     }
-    cmdOnOffSend(r_cmd->srcEp, &dstEpInfo, r_cmd->cmdId);
+    zcl_sendCmd(r_cmd->srcEp, &dstEpInfo, ZCL_CLUSTER_GEN_ON_OFF, r_cmd->cmdId, TRUE,
+                           ZCL_FRAME_CLIENT_SERVER_DIR, FALSE, 0, ZCL_SEQ_NUM, 0, NULL);
+//    cmdOnOffSend(r_cmd->srcEp, &dstEpInfo, r_cmd->cmdId);
 
     return -1;
 }
