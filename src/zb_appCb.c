@@ -83,12 +83,16 @@ static s32 app_bdbNetworkSteerStart(void *arg)
 }
 
 #if FIND_AND_BIND_SUPPORT
-static s32 app_bdbFindAndBindStart(void *arg)
-{
-    BDB_ATTR_GROUP_ID_SET(0x1234);//only for initiator
-    bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_INITIATOR);
+int32_t app_bdbFindAndBindStart(void *arg) {
 
-    g_switchAppCtx.bdbFBTimerEvt = NULL;
+    _CODE_BDB_ u8 st = bdb_findAndBindStart(BDB_COMMISSIONING_ROLE_INITIATOR);
+    APP_DEBUG(DEBUG_BDB_EN, "timer app_bdbFindAndBindStart. status from bdb_findAndBindStart: 0x%02x\r\n", st);
+
+    if (st != BDB_STATE_IDLE) {
+        return TIMEOUT_2p5SEC;
+    }
+
+    findbind->timerBdbFindBindEvt = NULL;
     return -1;
 }
 #endif
@@ -125,7 +129,7 @@ static s32 app_rejoinBackoff(void *arg)
  */
 void zb_bdbInitCb(u8 status, u8 joinedNetwork)
 {
-    APP_DEBUG(DEBUG_ZB_CB_EN, "bdbInitCb: sta = %x, joined = %x\n", status, joinedNetwork);
+    APP_DEBUG(DEBUG_ZB_CB_EN, "bdbInitCb: sta = %x, joined = %x\r\n", status, joinedNetwork);
 
     if (status == BDB_INIT_STATUS_SUCCESS) {
         /*
@@ -138,7 +142,7 @@ void zb_bdbInitCb(u8 status, u8 joinedNetwork)
          */
         if (joinedNetwork) {
             g_appCtx.net_steer_start = false;
-            app_setPollRate(TIMEOUT_1MIN);
+            app_setPollRate(TIMEOUT_40SEC, 5);
 
 #ifdef ZCL_OTA
             ota_queryStart(APP_OTA_PERIODIC_QUERY_INTERVAL);
@@ -147,6 +151,10 @@ void zb_bdbInitCb(u8 status, u8 joinedNetwork)
 #ifdef ZCL_POLL_CTRL
             app_zclCheckInStart();
 #endif
+            if (findbind->timerGetIeeeCoordinatorEvt) {
+                TL_ZB_TIMER_CANCEL(&(findbind->timerGetIeeeCoordinatorEvt));
+            }
+            findbind->timerGetIeeeCoordinatorEvt = TL_ZB_TIMER_SCHEDULE(app_getCoordinatorExtAddrCb, NULL, TIMEOUT_2SEC);
         } else if (g_appCtx.net_steer_start) {
             u16 jitter = 0;
             do {
@@ -181,15 +189,19 @@ void zb_bdbInitCb(u8 status, u8 joinedNetwork)
  */
 void zb_bdbCommissioningCb(u8 status, void *arg)
 {
-    APP_DEBUG(DEBUG_ZB_CB_EN, "bdbCommCb: sta = %x\n", status);
+    APP_DEBUG(DEBUG_ZB_CB_EN, "bdbCommCb: sta = %x\r\n", status);
 
     switch (status) {
     case BDB_COMMISSION_STA_SUCCESS:
         g_appCtx.net_steer_start = false;
-        light_blink_stop();
-        light_blink_start(1, 3000, 10);
+//        light_blink_stop();
+        light_blink_start(1, 3000, 100);
 
-        app_setPollRate(TIMEOUT_1MIN);
+        if (findbind->timerClearFindBindFlagEvt) {
+            stop_timerClearFindBindFlag();
+        } else {
+            app_setPollRate(TIMEOUT_1MIN, 3);
+        }
 
         if (steerTimerEvt) {
             TL_ZB_TIMER_CANCEL(&steerTimerEvt);
@@ -209,12 +221,16 @@ void zb_bdbCommissioningCb(u8 status, void *arg)
 #ifdef ZCL_OTA
         ota_queryStart(APP_OTA_PERIODIC_QUERY_INTERVAL);
 #endif
-#if FIND_AND_BIND_SUPPORT
+#if 0 //FIND_AND_BIND_SUPPORT
         //start Finding & Binding
         if (!g_switchAppCtx.bdbFBTimerEvt) {
             g_switchAppCtx.bdbFBTimerEvt = TL_ZB_TIMER_SCHEDULE(app_bdbFindAndBindStart, NULL, 50);
         }
 #endif
+        if (findbind->timerGetIeeeCoordinatorEvt) {
+            TL_ZB_TIMER_CANCEL(&(findbind->timerGetIeeeCoordinatorEvt));
+        }
+        findbind->timerGetIeeeCoordinatorEvt = TL_ZB_TIMER_SCHEDULE(app_getCoordinatorExtAddrCb, NULL, TIMEOUT_2SEC);
         break;
     case BDB_COMMISSION_STA_IN_PROGRESS:
         break;
@@ -238,6 +254,11 @@ void zb_bdbCommissioningCb(u8 status, void *arg)
     case BDB_COMMISSION_STA_FORMATION_FAILURE:
         break;
     case BDB_COMMISSION_STA_NO_IDENTIFY_QUERY_RESPONSE:
+        light_blink_stop();
+        light_blink_start(5, 30, 300);
+        if (findbind->timerClearFindBindFlagEvt) {
+            stop_timerClearFindBindFlag();
+        }
         break;
     case BDB_COMMISSION_STA_BINDING_TABLE_FULL:
         break;
@@ -289,14 +310,14 @@ void zb_bdbFindBindSuccessCb(findBindDst_t *pDstInfo)
     dstEpInfo.dstEp = pDstInfo->endpoint;
     dstEpInfo.profileId = HA_PROFILE_ID;
 
-    zcl_identify_identifyCmd(SAMPLE_SWITCH_ENDPOINT, &dstEpInfo, FALSE, 0, 0);
+    zcl_identify_identifyCmd(APP_ENDPOINT1, &dstEpInfo, FALSE, 0, 0);
 #endif
 }
 
 #ifdef ZCL_OTA
 void app_otaProcessMsgHandler(u8 evt, u8 status)
 {
-    APP_DEBUG(DEBUG_ZB_CB_EN, "app_otaProcessMsgHandler: status = %x\n", status);
+    APP_DEBUG(DEBUG_ZB_CB_EN, "app_otaProcessMsgHandler: status = %x\r\n", status);
     if (evt == OTA_EVT_START) {
         if (status == ZCL_STA_SUCCESS) {
             APP_DEBUG(DEBUG_OTA_EN, "OTA update start.\r\n");
@@ -312,7 +333,7 @@ void app_otaProcessMsgHandler(u8 evt, u8 status)
 
         }
     } else if (evt == OTA_EVT_COMPLETE) {
-        app_setPollRate(TIMEOUT_20SEC);
+        app_setPollRate(TIMEOUT_20SEC, 3);
 
         if (status == ZCL_STA_SUCCESS) {
             APP_DEBUG(DEBUG_OTA_EN, "OTA update successful.\r\n");
@@ -322,7 +343,7 @@ void app_otaProcessMsgHandler(u8 evt, u8 status)
             ota_queryStart(OTA_PERIODIC_QUERY_INTERVAL);
         }
     } else if (evt == OTA_EVT_IMAGE_DONE) {
-        app_setPollRate(TIMEOUT_20SEC);
+        app_setPollRate(TIMEOUT_20SEC, 3);
     }
 }
 #endif

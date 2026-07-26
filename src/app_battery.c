@@ -9,7 +9,8 @@ static uint8_t get_battery_level(uint16_t battery_mv) {
     /* Zigbee 0% - 0x0, 50% - 0x64, 100% - 0xc8 */
     uint16_t battery_level = 0;
     if (battery_mv > MIN_VBAT_MV) {
-        battery_level = (battery_mv - MIN_VBAT_MV) / ((MAX_VBAT_MV - MIN_VBAT_MV) / 0xC8);
+//        battery_level = (battery_mv - MIN_VBAT_MV) / ((MAX_VBAT_MV - MIN_VBAT_MV) / 0xC8);
+        battery_level = (battery_mv - MIN_VBAT_MV) * 0xC8 / (MAX_VBAT_MV - MIN_VBAT_MV);
         if (battery_level > 0xC8)
             battery_level = 0xC8;
     }

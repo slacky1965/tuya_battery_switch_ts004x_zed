@@ -98,7 +98,7 @@ INCLUDE_PATHS := \
 -I$(SRC_PATH)/include \
 -I$(SRC_PATH)/common \
 -I$(SRC_PATH)/cht8305 \
--I$(SRC_PATH)/zcl
+-I$(SRC_PATH)/zigbee/zcl
  
 
 LS_FLAGS := $(SDK_PATH)/platform/boot/8258/boot_8258.link
@@ -147,7 +147,7 @@ SIZEDUMMY :=
 RM := rm -rf
 
 # All of the sources participating in the build are defined here
--include $(MAKE_INCLUDES)/zdo.mk
+#-include $(MAKE_INCLUDES)/zdo.mk
 -include $(MAKE_INCLUDES)/zcl.mk
 -include $(MAKE_INCLUDES)/wwah.mk
 -include $(MAKE_INCLUDES)/ss.mk
@@ -155,7 +155,7 @@ RM := rm -rf
 -include $(MAKE_INCLUDES)/mac.mk
 -include $(MAKE_INCLUDES)/gp.mk
 -include $(MAKE_INCLUDES)/common.mk
--include $(MAKE_INCLUDES)/bdb.mk
+#-include $(MAKE_INCLUDES)/bdb.mk
 -include $(MAKE_INCLUDES)/aps.mk
 -include $(MAKE_INCLUDES)/af.mk
 -include $(MAKE_INCLUDES)/zbhci.mk
@@ -260,8 +260,9 @@ clean-project:
 	-$(RM) $(FLASH_IMAGE) $(ELFS) $(SIZEDUMMY) $(LST_FILE) $(ELF_FILE)
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/*.o
 	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/common/*.o
-	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/zcl/*.o
-	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/drv_sdk/*.o
+	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/zigbee/zcl/*.o
+	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/zigbee/zdo/*.o
+	-$(RM) -R $(OUT_PATH)/$(SRC_PATH)/zigbee/bdb/*.o
 	-@echo ' '
 	
 pre-build:

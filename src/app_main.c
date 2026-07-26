@@ -93,6 +93,58 @@ bdb_commissionSetting_t g_bdbCommissionSetting = {
  * FUNCTIONS
  */
 
+static void afApsAckCb(void *args) {
+
+    apsdeDataConf_t *pApsDataCnf = (apsdeDataConf_t *)args;
+    repeat_cmd_t *r_cmd = app_find_repeat_cmd(pApsDataCnf->clusterId,
+                                              pApsDataCnf->srcEndpoint,
+                                              pApsDataCnf->dstEndpoint,
+                                              pApsDataCnf->dstAddrMode,
+                                              (tl_zb_addr_t*)&pApsDataCnf->dstAddr);
+#if UART_PRINTF_MODE
+    APP_DEBUG(DEBUG_REPEAT_EN, "afApsAckCb() - status: 0x%02x, clId: 0x%04x, src_ep: %d, dst_ep: %d, ",
+            pApsDataCnf->status, pApsDataCnf->clusterId, pApsDataCnf->srcEndpoint, pApsDataCnf->dstEndpoint);
+    if (pApsDataCnf->dstAddrMode == APS_SHORT_GROUPADDR_NOEP) {
+        APP_DEBUG(DEBUG_REPEAT_EN, "short_addr: 0x%04x, ", pApsDataCnf->dstAddr.addr_short);
+    } else {
+        APP_DEBUG(DEBUG_REPEAT_EN, "ieee: 0x%02x%02x%02x%02x%02x%02x%02x%02x, ",
+                pApsDataCnf->dstAddr.addr_long[0], pApsDataCnf->dstAddr.addr_long[1],
+                pApsDataCnf->dstAddr.addr_long[2], pApsDataCnf->dstAddr.addr_long[3],
+                pApsDataCnf->dstAddr.addr_long[4], pApsDataCnf->dstAddr.addr_long[5],
+                pApsDataCnf->dstAddr.addr_long[6], pApsDataCnf->dstAddr.addr_long[7]);
+
+        APP_DEBUG(DEBUG_REPEAT_EN, "cmp_addr: %d, ", ZB_64BIT_ADDR_CMP(pApsDataCnf->dstAddr.addr_long, pApsDataCnf->dstAddr.addr_long));
+    }
+    APP_DEBUG(DEBUG_REPEAT_EN, "r_cmd: %s\r\n", r_cmd?"true":"false");
+#endif
+
+    if (r_cmd) {
+        if (pApsDataCnf->status != APS_STATUS_SUCCESS) {
+            if (pApsDataCnf->dstAddrMode != APS_SHORT_GROUPADDR_NOEP) {
+                switch(pApsDataCnf->clusterId) {
+                    case ZCL_CLUSTER_GEN_ON_OFF:
+                        app_repeatCmdOnOff(r_cmd);
+                        break;
+                    case ZCL_CLUSTER_GEN_LEVEL_CONTROL:
+                        app_repeatCmdLevel(r_cmd);
+                        break;
+                    case ZCL_CLUSTER_GEN_SCENES:
+                        app_repeatCmdScene(r_cmd);
+                        break;
+                    case ZCL_CLUSTER_LIGHTING_COLOR_CONTROL:
+                        app_repeatCmdColorCtrl(r_cmd);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        r_cmd->used = false;
+        if (repeat_cmd_num > 0) repeat_cmd_num--;
+    }
+    if (repeat_cmd_num == 0) clearButtonSleepTimer();
+}
+
 /*********************************************************************
  * @fn      stack_init
  *
@@ -135,23 +187,33 @@ void user_app_init(void)
     zcl_init(app_zclProcessIncomingMsg);
 
     /* register endPoint */
-    af_endpointRegister(APP_ENDPOINT1, (af_simple_descriptor_t *)&app_ep1Desc, zcl_rx_handler, NULL);
-    af_endpointRegister(APP_ENDPOINT2, (af_simple_descriptor_t *)&app_ep2Desc, zcl_rx_handler, NULL);
-    af_endpointRegister(APP_ENDPOINT3, (af_simple_descriptor_t *)&app_ep3Desc, zcl_rx_handler, NULL);
-    af_endpointRegister(APP_ENDPOINT4, (af_simple_descriptor_t *)&app_ep4Desc, zcl_rx_handler, NULL);
-    af_endpointRegister(APP_ENDPOINT5, (af_simple_descriptor_t *)&app_ep5Desc, zcl_rx_handler, NULL);
-    af_endpointRegister(APP_ENDPOINT6, (af_simple_descriptor_t *)&app_ep6Desc, zcl_rx_handler, NULL);
+    af_endpointRegister(APP_ENDPOINT1, (af_simple_descriptor_t *)&app_ep1Desc, zcl_rx_handler, afApsAckCb);
+    if (device_button_model > DEVICE_BUTTON_1)
+        af_endpointRegister(APP_ENDPOINT2, (af_simple_descriptor_t *)&app_ep2Desc, zcl_rx_handler, afApsAckCb);
+    if (device_button_model > DEVICE_BUTTON_2)
+        af_endpointRegister(APP_ENDPOINT3, (af_simple_descriptor_t *)&app_ep3Desc, zcl_rx_handler, afApsAckCb);
+    if (device_button_model > DEVICE_BUTTON_3)
+        af_endpointRegister(APP_ENDPOINT4, (af_simple_descriptor_t *)&app_ep4Desc, zcl_rx_handler, afApsAckCb);
+    if (device_button_model > DEVICE_BUTTON_4)
+        af_endpointRegister(APP_ENDPOINT5, (af_simple_descriptor_t *)&app_ep5Desc, zcl_rx_handler, afApsAckCb);
+    if (device_button_model > DEVICE_BUTTON_5)
+        af_endpointRegister(APP_ENDPOINT6, (af_simple_descriptor_t *)&app_ep6Desc, zcl_rx_handler, afApsAckCb);
 
     zcl_reportingTabInit();
     device_settings_restore();
 
     /* Register ZCL specific cluster information */
     zcl_register(APP_ENDPOINT1, APP_EP1_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp1ClusterList);
-    zcl_register(APP_ENDPOINT2, APP_EP2_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp2ClusterList);
-    zcl_register(APP_ENDPOINT3, APP_EP3_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp3ClusterList);
-    zcl_register(APP_ENDPOINT4, APP_EP4_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp4ClusterList);
-    zcl_register(APP_ENDPOINT5, APP_EP5_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp5ClusterList);
-    zcl_register(APP_ENDPOINT6, APP_EP6_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp6ClusterList);
+    if (device_button_model > DEVICE_BUTTON_1)
+        zcl_register(APP_ENDPOINT2, APP_EP2_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp2ClusterList);
+    if (device_button_model > DEVICE_BUTTON_2)
+        zcl_register(APP_ENDPOINT3, APP_EP3_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp3ClusterList);
+    if (device_button_model > DEVICE_BUTTON_3)
+        zcl_register(APP_ENDPOINT4, APP_EP4_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp4ClusterList);
+    if (device_button_model > DEVICE_BUTTON_4)
+        zcl_register(APP_ENDPOINT5, APP_EP5_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp5ClusterList);
+    if (device_button_model > DEVICE_BUTTON_5)
+        zcl_register(APP_ENDPOINT6, APP_EP6_CB_CLUSTER_NUM, (zcl_specClusterInfo_t *)g_appEp6ClusterList);
 
 #if ZCL_OTA_SUPPORT
     ota_init(OTA_TYPE_CLIENT, (af_simple_descriptor_t *)&app_ep1Desc, &app_otaInfo, &app_otaCb);
@@ -180,7 +242,7 @@ void app_task(void) {
         report_handler();
 #if PM_ENABLE
         button_handler();
-        if(!button_idle() && !factory_reset) {
+        if(!button_idle()) {
             app_lowPowerEnter();
         }
 #endif
@@ -191,7 +253,7 @@ extern volatile uint16_t T_evtExcept[4];
 
 static void appSysException(void) {
 
-    DEBUG(UART_PRINTF_MODE, "app_sysException, line: %d, event: 0x%02x, reset\r\n", T_evtExcept[0], T_evtExcept[1]);
+    APP_DEBUG(UART_PRINTF_MODE, "app_sysException, line: %d, event: 0x%02x, reset\r\n", T_evtExcept[0], T_evtExcept[1]);
 
 #if 1
     SYSTEM_RESET();

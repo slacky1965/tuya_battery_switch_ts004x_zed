@@ -37,6 +37,13 @@ int32_t zclLightTimerCb(void *arg)
 {
     uint32_t interval = 0;
 
+    if (g_appCtx.ledTimerStop) {
+        g_appCtx.ledTimerStop = false;
+        g_appCtx.times = 0;
+        g_appCtx.timerLedEvt = NULL;
+        return -1;
+    }
+
     if(g_appCtx.sta == g_appCtx.oriSta){
         g_appCtx.times--;
         if(g_appCtx.times <= 0){
@@ -61,34 +68,45 @@ void light_blink_start(uint8_t times, uint16_t ledOnTime, uint16_t ledOffTime)
 {
 //    printf("light_blink_start, times: %d, onTime: %d, offTime: %d\r\n", times, ledOnTime, ledOffTime);
     uint32_t interval = 0;
-    g_appCtx.times = times;
 
-    if(!g_appCtx.timerLedEvt){
-        if(g_appCtx.oriSta){
-            light_off();
-            g_appCtx.sta = 0;
-            interval = ledOffTime;
-        }else{
-            light_on();
-            g_appCtx.sta = 1;
-            interval = ledOnTime;
-        }
-        g_appCtx.ledOnTime = ledOnTime;
-        g_appCtx.ledOffTime = ledOffTime;
+    if(g_appCtx.timerLedEvt) {
+        TL_ZB_TIMER_CANCEL(&g_appCtx.timerLedEvt);
+    }
+
+    if(g_appCtx.oriSta) {
+        light_off();
+        g_appCtx.sta = 0;
+        interval = ledOffTime;
+    } else {
+        light_on();
+        g_appCtx.sta = 1;
+        interval = ledOnTime;
+    }
+    g_appCtx.times = times;
+    g_appCtx.ledTimerStop = false;
+    g_appCtx.ledOnTime = ledOnTime;
+    g_appCtx.ledOffTime = ledOffTime;
 
 //        printf("timerLedEvt = NULL, interval: %d\r\n", interval);
 
-        g_appCtx.timerLedEvt = TL_ZB_TIMER_SCHEDULE(zclLightTimerCb, NULL, interval);
-    }
+    g_appCtx.timerLedEvt = TL_ZB_TIMER_SCHEDULE(zclLightTimerCb, NULL, interval);
 }
 
 void light_blink_stop(void)
 {
 //    printf("light_blink_stop\r\n");
 
-    if(g_appCtx.timerLedEvt){
-        TL_ZB_TIMER_CANCEL(&g_appCtx.timerLedEvt);
+    uint8_t ret = 0;
 
+    if(g_appCtx.timerLedEvt) {
+        for (uint8_t i= 0; i < 128 && g_appCtx.timerLedEvt; i++) {
+            ret = TL_ZB_TIMER_CANCEL(&g_appCtx.timerLedEvt);
+            if (ret == NO_TIMER_AVAIL || ret == SUCCESS) {
+                g_appCtx.timerLedEvt = NULL;
+            } else if (ret == TIMER_CANCEL_NOT_ALLOWED) {
+                g_appCtx.ledTimerStop = true;
+            }
+        }
         g_appCtx.times = 0;
         if(g_appCtx.oriSta){
             light_on();
@@ -96,4 +114,15 @@ void light_blink_stop(void)
             light_off();
         }
     }
+
+//    if(g_appCtx.timerLedEvt){
+//        TL_ZB_TIMER_CANCEL(&g_appCtx.timerLedEvt);
+//
+//        g_appCtx.times = 0;
+//        if(g_appCtx.oriSta){
+//            light_on();
+//        }else{
+//            light_off();
+//        }
+//    }
 }

@@ -15,11 +15,14 @@
 #include "app_button.h"
 #include "app_pm.h"
 #include "app_battery.h"
+#include "app_findbind.h"
 #include "app_reporting.h"
 #include "app_endpoint_cfg.h"
 #include "app_utility.h"
 #include "app_on_off.h"
 #include "app_level.h"
+#include "app_color_temp.h"
+#include "app_repeat_cmd.h"
 
 typedef struct {
     uint8_t keyType; /* CERTIFICATION_KEY or MASTER_KEY key for touch-link or distribute network
@@ -49,6 +52,7 @@ typedef struct {
     uint8_t  oriSta;     //original state before blink
     uint8_t  sta;        //current state in blink
     uint8_t  times;      //blink times
+    bool     ledTimerStop;
 
 //    button_t button[MAX_BUTTON_NUM];
 //    u8  keyPressed;
@@ -86,11 +90,12 @@ status_t app_sceneCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdP
 status_t app_pollCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 status_t app_msInputCb(zclIncomingAddrInfo_t *pAddrInfo, uint8_t cmdId, void *cmdPayload);
 status_t app_levelCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
+status_t app_colorCtrlCb(zclIncomingAddrInfo_t *pAddrInfo, u8 cmdId, void *cmdPayload);
 
 void app_leaveCnfHandler(nlme_leave_cnf_t *pLeaveCnf);
 void app_leaveIndHandler(nlme_leave_ind_t *pLeaveInd);
 void app_otaProcessMsgHandler(uint8_t evt, uint8_t status);
 void app_wakeupPinLevelChange();
-
+int32_t app_bdbFindAndBindStart(void *arg);
 
 #endif /* SRC_INCLUDE_APP_MAIN_H_ */
